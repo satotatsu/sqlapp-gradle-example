@@ -31,7 +31,7 @@
 |  Trigger   |  OK  |  -  |  OK  |
 |  User   |  OK  |  -  |  -  |
 |  Role   |  OK  |  -  |  -  |
-|  Privilege   |  OK  |  -  |  -  |
+|  Privilege   |  OK  |  -  |  OK  |
   
 ## ディレクトリ構成
 
@@ -73,7 +73,7 @@ root/
 
 ### スキーマDIFF
  - diffSchemaXml  
- 　　schemas/とschemas/base配下のDBスキーマのXMLファイルのDIFFを出力する。
+   schemas/とschemas/base配下のDBスキーマのXMLファイルのDIFFを出力する。
 
 ### スキーマバージョン管理タスク
  - versionUp
@@ -83,6 +83,12 @@ root/
 ### DBデータImport、Export系
  - importData
  - exportData
+
+### DBテストデータ生成
+ - generateDataGeneratorSetting
+   DBにデータを生成するための雛形となるファイルを生成するタスク。DBに接続して生成する。
+ - generateData
+   指定されたDB生成用のファイルからDBに接続してデータを生成するタスク。
 
 ### その他
  - copyLib

@@ -1,16 +1,10 @@
-from gradle:7.4.1-jdk11-alpine
+FROM gradle:jdk25-alpine
 
-RUN sed -i 's/https\:\/\//http:\/\//g' /etc/apk/repositories
+RUN apk add --no-cache \
+       graphviz \
+       ttf-freefont \
+       fontconfig
 
-RUN apk add --update --no-cache \
-           graphviz \
-           ttf-freefont
-
-RUN rm -f -R html
-RUN mkdir html
-RUN chmod -R 666 html
-#RUN sudo gradle generateHtml
+RUN mkdir -p html && chmod -R 755 html
 ENTRYPOINT ["gradle"]
 CMD ["generateHtml"]
-
-

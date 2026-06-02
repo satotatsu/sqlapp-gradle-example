@@ -1,74 +1,41 @@
-buildscript {
-	repositories {
-		mavenLocal()
-		mavenCentral()
-		maven { url 'https://version99.qos.ch' }
-	}
-
-	dependencies {
-		File libFile=file('lib');
-		if (libFile.exists()&&libFile.list()!=null&&libFile.list().length>0) {
-			classpath fileTree(dir: 'extlib', include: '*.jar')
-			classpath fileTree(dir: 'lib', include: '*.jar')
-		} else {
-			classpath fileTree(dir: 'extlib', include: '*.jar')
-			//sqlapp
-			[
-				'sqlapp-core',
-				'sqlapp-command',
-				'sqlapp-gradle-plugin',
-				"sqlapp-core-${db}"
-			].each { name -> classpath "com.sqlapp:${name}:+" }
-
-			if ("${jdbc_driver}"!="") {
-				classpath "${jdbc_driver}"
-			}
-		}
-	}
-}
-
 plugins {
-	id 'com.sqlapp.db' version '0.12.25'
+	id 'com.sqlapp.db' version '0.47.0'
 	id 'java'
 	id 'java-library'
+	id 'eclipse'
 }
-import java.io.File
-import java.util.function.Predicate
-
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
 
 group = 'com.sqlapp'
-//archivesBaseName = 'sample-db'
-//version = System.properties['version'] ?: '1.0.0'
 
-project.extensions.loadTimeEnvironment=true
-project.extensions.defaultEnvironment="local"
-project.extensions.environmentFilePath="src/main/config"
+java {
+	withJavadocJar();
+	withSourcesJar();
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17);
+	}
+}
 	
 // Encoding
-//tasks.withType(compile) each { it.options.encoding = 'UTF-8' }
-
-compileJava {
-	options.encoding = 'UTF-8'
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = defaultEncoding
 }
 
-compileTestJava {
-	options.encoding = 'UTF-8'
+tasks.withType(AbstractCompile).configureEach {
+	it.options.encoding = defaultEncoding
 }
 
-def base = System.properties['project.root']
-if (base==null){
-	base='./'
+tasks.withType(GroovyCompile).configureEach {
+	groovyOptions.encoding = defaultEncoding
 }
 
 
-def masterSchemaName="app_master${schemaNameSuffix}"
-def commonSchemaName="app_common${schemaNameSuffix}"
-def tranSchemaName="app_tran${schemaNameSuffix}"
-String[] targetSchemas=[] as String[]
+//def masterSchemaName="app_master${schemaNameSuffix}"
+//def commonSchemaName="app_common${schemaNameSuffix}"
+//def tranSchemaName="app_tran${schemaNameSuffix}"
+//String[] targetSchemas=[masterSchemaName, commonSchemaName, tranSchemaName]
+def targetSchemas=["schemaA"]
 
 def changeLogTableName="changelog"
 
@@ -78,126 +45,153 @@ def font="${font}"
 
 // add Repository
 repositories {
-	mavenLocal()
 	mavenCentral()
-	maven { url 'http://version99.qos.ch' }
 }
 
-configurations {
-	all*.exclude group: "log4j", module: "log4j"
-	all*.exclude group: "org.projectlombok", module: "lombok"
+configurations.configureEach {
+	exclude group: 'log4j', module: 'log4j'
 }
 
 // search dependencies by http://mvnrepository.com/
 dependencies {
-	File libFile=file('lib');
-	if (libFile.exists()&&libFile.list()!=null&&libFile.list().length>0) {
-		implementation fileTree(dir: 'extlib', include: '*.jar')
-		implementation fileTree(dir: 'lib', include: '*.jar')
+	File libsFile=file('libs');
+	if (libsFile.exists()&&libsFile.list()!=null&&libsFile.list().length>0) {
+		implementation fileTree(dir: 'libs', include: '*.jar')
 	} else {
-		implementation fileTree(dir: 'extlib', include: '*.jar')
-		implementation 'org.codehaus.janino:janino:2.7.8'
-		implementation 'commons-logging:commons-logging:99-empty'
+		implementation("org.codehaus.janino:janino:3.1.12")
 		//DB
 		if ("${jdbc_driver}"!="") {
 			implementation "${jdbc_driver}"
 		}
-		implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
-		
+
 		//sqlapp
 		[
-			'sqlapp-core',
-			'sqlapp-command',
-			'sqlapp-gradle-plugin',
+//			'sqlapp-core',
+//			'sqlapp-command',
+//			'sqlapp-gradle-plugin',
 			"sqlapp-core-${db}"
 		].each { name -> implementation "com.sqlapp:${name}:+" }
 	}
 }
 
 wrapper {
-	gradleVersion = '7.4.1'
+	gradleVersion = '9.5.1'
 }
 
 //copy library
-task copyLib(type: Copy){
+tasks.register('copyLib', Copy) {
 	from configurations.implementation
-	into 'lib'
+	into 'libs'
+}
+
+tasks.register('clTest') {
+	System.out.println("project.getClass().getClassLoader()="
+		+ project.getClass().getClassLoader());
+	System.out.println("project.getClass().getClassLoader().getParent()="
+		+ project.getClass().getClassLoader().getParent());
+	System.out.println("project.getClass().getClassLoader().getParent().getParent()="
+		+ project.getClass().getClassLoader().getParent().getParent());
+	System.out.println("")
+	
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader());
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent());
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent());
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent());
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent());
+	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent().getParent()="
+		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent().getParent());
+	System.out.println("")
+		
+	System.out.println("com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader()="
+		+ com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader());
+	System.out.println("com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader().getParent()="
+		+ com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader().getParent());
+//	System.out.println("org.hsqldb.jdbc.JDBCDataSource.class.getClassLoader()="
+//		+ org.hsqldb.jdbc.JDBCDataSource.class.getClassLoader());
 }
 
 //cleanup library
-task cleanLib(){
-	file('lib').deleteDir();
-	file('lib').mkdir()
+tasks.register('cleanLib') {
+	doLast {
+		delete layout.projectDirectory.dir('libs')
+		mkdir layout.projectDirectory.dir('libs').asFile
+	}
 }
 
 //cleanup and copy library
-task deploy {
-	dependsOn cleanLib,copyLib
+tasks.register('deploy') {
+	dependsOn 'cleanLib', 'copyLib'
 }
 
 //Export Schema XML
 exportXml {
-	debug=true
+	debug = false
 	dataSource {
-//		driverClassName=jdbc.connection.driverClassName
-//		url=jdbc.connection.url
-//		username=jdbc.connection.username
-//		password=jdbc.connection.password
-		properties "${jdbcConfigPath}"
+//		driverClassName=driverClassName
+//		jdbcUrl=jdbcUrl
+//		username=username
+//		password=password
+		properties "${dataSourceProperties}"
 	}
 //	target="catalog" or "schema" or "tables" or...
-	target="${schema_level}"
-	outputPath=file("schemas")
-	outputFileName="${schema_level}.xml"
-	dumpRows=true
-	includeSchemas targetSchemas
-	includeRowDumpTables exportXmlWithRowDumpTables
+	target = "${schema_level}"
+	outputDirectory = file("schemas")
+	outputFileName = "${schema_level}.xml"
+	dumpRows = true
+	includeSchemas.addAll(targetSchemas)
+	includeRowDumpTables.addAll(exportXmlWithRowDumpTables)
 }
 
 //Drop all tables
 dropObjects {
-	debug=true
+	debug = true
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	includeSchemas targetSchemas
+	includeSchemas.addAll(targetSchemas)
 //	preDropTableSql="SET SESSION FOREIGN_KEY_CHECKS=0"
 //	afterDropTableSql="SET SESSION FOREIGN_KEY_CHECKS=1"
-	dropObjects=false
-	dropTables=true
+	dropObjects = false
+	dropTables = true
 }
 
 //Output Table rows count
 countAllTables {
-	debug=true
+	debug = true
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	includeSchemas targetSchemas
+	includeSchemas.addAll(targetSchemas)
 	outputFormatType="TABLE"
 }
 
 //Execute DB schema version up
 versionUp {
-	debug=true
+	debug = true
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	parameters=['schemaNameSuffix':"${schemaNameSuffix}"]
-	sqlDirectory=file("src/main/sql")
-	fileDirectory=file("src/main/resources")
-	encoding="UTF8"
-	lastChangeNumber="${lastChangeToApply}"
-	showVersionOnly=false
-	withSeriesNumber=true
-	placeholderPrefix='${';
-	placeholderSuffix='}';
-	placeholders=true;
-	changeTable{
-		name="${masterSchemaName}.${changeLogTableName}"
+//	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
+	sqlDirectory = file("src/main/sql")
+	//downSqlDirectory = file("src/main/downSql")
+	fileDirectory = file("src/main/resources")
+	encoding = "UTF8"
+	lastChangeNumber = lastChangeToApply
+	showVersionOnly = false
+	withSeriesNumber = true
+	placeholderPrefix = '${'
+	placeholderSuffix = '}'
+	placeholders = true
+	changeTable {
+//		name = "${masterSchemaName}.${changeLogTableName}"
 //		idColumnName="id"
 //		appliedByColumnName="applied_by"
-		appliedAtColumnName="complete_dt"
+//		appliedAtColumnName="complete_dt"
 //		descriptionColumnName="description"
 //		seriesNumberColumnName="seriesNumber"
 	}
@@ -205,46 +199,37 @@ versionUp {
 
 //Repair DB schema version up
 versionRepair {
-	debug=true
-	parameters=['schemaNameSuffix':"${schemaNameSuffix}"]
+	debug = true
+//	parameters=['schemaNameSuffix':"${schemaNameSuffix}"]
 }
 
 //Execute DB schema version down
 versionDown {
-	debug=true
-	parameters=['schemaNameSuffix':"${schemaNameSuffix}"]
-	sqlDirectory=file("src/main/sql")
-	fileDirectory=file("src/main/resources")
-	encoding="UTF8"
-	showVersionOnly=false
-	withSeriesNumber=true
-	placeholderPrefix='${';
-	placeholderSuffix='}';
-	placeholders=true;
+	debug = true
+//	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
 }
 
 //Import to DB
 importData {
-	debug=true
+	debug = true
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	parameters=[:]
-	useSchemaNameDirectory=false
-	useTableNameDirectory=false
-	directory=file("src/main/export")
-	fileDirectory=file("src/main/resources")
-	csvEncoding="UTF8"
-	sqlType="MERGE_ROW"
-	placeholderPrefix='${';
-	placeholderSuffix='}';
-	placeholders=true;
-//	fileFilter={f->true}
-	includeSchemas targetSchemas
+	parameters = [:]
+	useSchemaNameDirectory = false
+	directory = file("src/main/export")
+	fileDirectory = file("src/main/resources")
+	csvEncoding = "UTF8"
+	sqlType = "MERGE_ROW"
+	placeholderPrefix = '${'
+	placeholderSuffix = '}'
+	placeholders = true
+	fileFilter {f->true}
+	includeSchemas.addAll(targetSchemas)
 //	includeTables "a", "b"
 	tableOptions {
-		commitPerTable=true
-		dmlBatchSize={table->50}
+		commitPerTable = true
+		dmlBatchSize = { table -> 500 }
 //		withCoalesceAtUpdate={c->(c.name=='sub_service_class')}
 		optimisticLockColumn={c->(c.name=='lock_version'||c.name=='version_no')}
 	}
@@ -252,71 +237,100 @@ importData {
 
 //Export from DB
 exportData {
-	debug=true
+	debug = true
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
 	parameters=[:]
 	useSchemaNameDirectory=false
-	directory=file("src/main/export")
+	outputDirectory=file("src/main/export")
 	csvEncoding="UTF8"
 	//xls,xlsx,ods,csv,tsv,xml,json
 	outputFileType="xlsx"
 //	fileFilter={f->true}
-	includeSchemas targetSchemas
-	includeTables exportDataTargetTables
+	includeSchemas.addAll(targetSchemas)
+	includeTables.addAll(exportDataTargetTables)
 	tableOptions {
 		
 	}
 }
 
 //Convert data file to Excel format.
-task('toExcel', type: com.sqlapp.gradle.plugins.ConvertDataFileTask) {
-	debug=false
+tasks.register('toExcel', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+	debug = false
 	directory=file("src/main/export")
-//	fileFilter={f->true}
-//	csvEncoding="UTF8"
-//	recursive=false
-//	sheetName="TABLE"
+	fileFilter = { f->true }
+//	csvEncoding = "UTF8"
+//	recursive = false
+//	sheetName = "TABLE"
 	outputFileType="xlsx"
-//	removeOriginalFile=true
-//	outputDirectory=file("src/main/export2")
+//	removeOriginalFile = true
+//	outputDirectory = file("src/main/export2")
 }
 
 //Convert data file to JSON format.
-task('toJson', type: com.sqlapp.gradle.plugins.ConvertDataFileTask) {
-	debug=false
+tasks.register('toJson', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+	debug = false
 	directory=file("src/main/export")
-//	fileFilter={f->true}
-	recursive=false
-	sheetName="TABLE"
-	outputFileType="json"
-	removeOriginalFile=true
+	fileFilter = { f->true }
+	recursive = false
+	sheetName = "TABLE"
+	outputFileType = "json"
+	removeOriginalFile = true
+//	outputDirectory=file("src/main/export2")
+}
+
+tasks.register('toYaml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+	debug = false
+	directory=file("src/main/export")
+	fileFilter = { f-> true }
+	recursive = false
+	sheetName = "TABLE"
+	outputFileType = "yaml"
+	removeOriginalFile = true
+//	outputDirectory=file("src/main/export2")
+}
+
+tasks.register('toToml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+	debug = false
+	directory=file("src/main/export")
+	fileFilter = { f-> true }
+	recursive = false
+	sheetName = "TABLE"
+	outputFileType = "toml"
+	removeOriginalFile = true
 //	outputDirectory=file("src/main/export2")
 }
 
 //Convert data file to CSV format.
-task('toCsv', type: com.sqlapp.gradle.plugins.ConvertDataFileTask) {
-	debug=false
-	directory=file("src/main/export")
-//	fileFilter={f->true}
-	csvEncoding="UTF8"
-	recursive=false
-	sheetName="TABLE"
-	outputFileType="csv"
+tasks.register('toCsv', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+	debug = false
+	directory = file("src/main/export")
+	fileFilter = { f-> true }
+	csvEncoding = "UTF8"
+	recursive = false
+	sheetName = "TABLE"
+	outputFileType = "csv"
 	removeOriginalFile=true
 //	outputDirectory=file("src/main/export2")
 }
 
 //Output Diff of XML
-diffSchemaXml{
-	originalFile=file("schemas/base/${schema_level}.xml")
-	targetFile=file("schemas/${schema_level}.xml")
+diffSchemaXml {
+	originalFile = file("schemas/base/${schema_level}.xml")
+	targetFile = file("schemas/${schema_level}.xml")
 	equalsHandler {
 //		referenceEqualsPredicate={(a,b)->a==null&&b==null||a!=null&&a.is(b)||b!=null&&b.is()}
 //		valueEqualsPredicate={(propertyName,eq, obj1, obj2, val1, val2)->eq}
 //		equalsLastPredicate={(a,b)->true}
 	}
+}
+
+//zip HTML
+tasks.register('zipHtml', Zip) {
+	from 'html'
+	archiveAppendix = 'html'
+	destinationDirectory = file('./')
 }
 
 //move XML
@@ -333,37 +347,29 @@ task mvXml {
 	}
 }
 
-//zip HTML
-task zipHtml(type: Zip) {
-	from 'html'
-	archiveName 'html.zip'
-	destinationDir(file('./'))
-}
-
 //Generate ALTER SQL by Schema XML Diff 
-generateDiffSql{
-	originalFile="schemas/base/${schema_level}.xml"
-	targetFile="schemas/${schema_level}.xml"
-	encoding="UTF8"
-	outputAsMultiFiles=false
-	withVersionDown=true
-	outputPath=file("src/main/sql")
-	outputFileExtension="sql"
+generateDiffSql {
+	originalFile = file("schemas/base/${schema_level}.xml")
+	targetFile = file("schemas/${schema_level}.xml")
+	encoding = "UTF8"
+	outputAsMultiFiles = false
+	withVersionDown = true
+	outputDirectory = file("src/main/sql")
+	outputFileExtension = "sql"
 //	lastChangeNumber="${lastChangeToApply}"
-	changeNumberStep=10
-//	numberOfDigits=19
-	numberOfDigits=9
+	changeNumberStep = 10
+	numberOfDigits = 19
 	equalsHandler {
 //		referenceEqualsPredicate={(a,b)->a==null&&b==null||a!=null&&a.is(b)||b!=null&&b.is()}
 //		valueEqualsPredicate={(propertyName,eq, obj1, obj2, val1, val2)->eq}
 //		equalsLastPredicate={(a,b)->true}
 	}
 	schemaOptions {
-		outputCommit=false
-		dropIfExists=true
-		createIfNotExists=true
-		decorateSchemaName=false
-		setSearchPathToSchema=true
+		outputCommit = false
+		dropIfExists = true
+		createIfNotExists = true
+		decorateSchemaName = false
+		setSearchPathToSchema = true
 		tableOptions {
 			
 		}
@@ -371,22 +377,21 @@ generateDiffSql{
 }
 
 //Generate SQL by schema XML
-generateSql{
-	targetFile="schemas/base/${schema_level}.xml"
-	encoding="UTF8"
-	outputAsMultiFiles=true
-	outputPath=file("src/main/gensql")
-	outputFileExtension="sql"
+generateSql {
+	targetFile = file("schemas/base/${schema_level}.xml")
+	encoding = "UTF8"
+	outputAsMultiFiles = true
+	outputDirectory = file("src/main/gensql")
+	outputFileExtension = "sql"
 //	lastChangeNumber="${lastChangeToApply}"
-	changeNumberStep=10
-//	numberOfDigits=19
-	numberOfDigits=9
+	changeNumberStep = 10
+	numberOfDigits = 19
 	schemaOptions {
-		outputCommit=false
-		dropIfExists=true
-		createIfNotExists=true
-		decorateSchemaName=false
-		setSearchPathToSchema=true
+		outputCommit = false
+		dropIfExists = true
+		createIfNotExists = true
+		decorateSchemaName = false
+		setSearchPathToSchema = true
 		tableOptions {
 			
 		}
@@ -394,61 +399,90 @@ generateSql{
 }
 
 //Generate or Update Dictionaries for HTML
-updateDictionaries{
-	withSchema={filename->true}
-	targetFile=file("schemas/base/${schema_level}.xml")
-	dictionaryFileDirectory=file("src/main/dictionaries")
-	dictionaryFileType="xlsx"
+updateDictionaries {
+	withSchema = { menuName -> true } //menuName=schemas or tables or column or etc
+	targetFile = file("schemas/base/${schema_level}.xml")
+	dictionaryFileDirectory = file("src/main/dictionaries")
+	dictionaryFileType = "xlsx"
 }
 
 //Generate HTML Document
-generateHtml{
-	targetFile=file("schemas/base/${schema_level}.xml")
-	dictionaryFileDirectory=file("src/main/dictionaries")
-	dictionaryFileType="xml"
-	outputDirectory=file("html/")
-	diagramFont=font
-	multiThread=true
+generateHtml {
+	targetFile = file("schemas/base/${schema_level}.xml")
+	dictionaryFileDirectory = file("src/main/dictionaries")
+	dictionaryFileType = "xml"
+	outputDirectory = file("html/")
+	diagramFont = font //gradlew avaliableFonts
+	multiThread = true
 	//
-	useSchemaNameDirectory=false
-	useTableNameDirectory=false
-	directory=file("src/main/export")
-	fileDirectory=file("src/main/resources")
-	csvEncoding="UTF8"
-	placeholderPrefix='${';
-	placeholderSuffix='}';
-	placeholders=true;
-//	fileFilter={f->true}
+	useSchemaNameDirectory = false
+	directory = file("src/main/export")
+	fileDirectory = file("src/main/resources")
+	csvEncoding = "UTF8"
+	placeholderPrefix = '${';
+	placeholderSuffix = '}';
+	placeholders = true;
+	fileFilter = {f->true}
 	//
-	foreignKeyDefinitionDirectory=file("src/main/foreignkey")
+	foreignKeyDefinitionDirectory = file("src/main/foreignkey")
+}
+
+tasks.register('task generateDataGeneratorSetting', com.sqlapp.gradle.plugins.GenerateDataGeneratorSettingTask){
+	debug = false
+	dataSource {
+		properties "${dataSourceProperties}"
+	}
+	outputDirectory=file("src/main/generator")
+	sqlType='INSERT'
+//	includeSchemas.addAll(targetSchemas)
+//	excludeSchemas.addAll(targetSchemas)
+//	includeTables.addAll(targetTables)
+//	excludeTables.addAll(targetTables)
+	onlyCurrentSchema=true
+}
+
+tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
+	debug = false
+	dataSource {
+		properties "${dataSourceProperties}"
+	}
+	evaluator.addPackageImports("data.generator")
+	directory=file("src/main/generator")
+	queryCommitInterval=500
+	onlyCurrentSchema=true
 }
 
 //Display MySQL connection info
-task('showConnections', type: com.sqlapp.gradle.plugins.SqlQueryTask) {
-	debug=false
+tasks.register('showConnections', com.sqlapp.gradle.plugins.SqlQueryTask) {
+	debug = false
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	sql="show processlist"
-	outputFormatType="TABLE"
+	sql = "SHOW PROCESSLIST"
+	outputFormatType = "TABLE"
 }
 
 //Display MySQL Errors
-task('showErrors', type: com.sqlapp.gradle.plugins.SqlQueryTask) {
-	debug=false
+tasks.register('showErrors', com.sqlapp.gradle.plugins.SqlQueryTask) {
+	debug = false
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
-	sql="SHOW ERRORS"
-	outputFormatType="TABLE"
+	sql = "SHOW ERRORS"
+	outputFormatType = "TABLE"
 }
 
 //Display MySQL Warnings
-task('showWarnings', type: com.sqlapp.gradle.plugins.SqlQueryTask) {
+tasks.register('showWarnings', com.sqlapp.gradle.plugins.SqlQueryTask) {
 	debug=false
 	dataSource {
-		properties "${jdbcConfigPath}"
+		properties "${dataSourceProperties}"
 	}
 	sql="SHOW WARNINGS"
 	outputFormatType="TABLE"
 }
+
+//Available fonts for Graphviz
+tasks.register('availableFonts', com.sqlapp.gradle.plugins.AvailableFontsTask) {
+}
+
