@@ -403,7 +403,8 @@ tasks.register('generateDataGeneratorSetting', com.sqlapp.gradle.plugins.Generat
 		properties "${dataSourceProperties}"
 	}
 	outputDirectory=file("src/main/generator")
-	sqlType='INSERT'
+	sqlType='INSERT'  //INSERT Only
+	fileType="EXCEL2007" //EXCEL2007 or YAML or JSON or TOML
 	includeSchemas.addAll(targetSchemas)
 //	excludeSchemas.addAll(targetSchemas)
 //	includeTables.addAll(targetTables)
