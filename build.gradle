@@ -404,10 +404,10 @@ tasks.register('generateDataGeneratorSetting', com.sqlapp.gradle.plugins.Generat
 	}
 	outputDirectory=file("src/main/generator")
 	sqlType='INSERT'
-//	includeSchemas.addAll(targetSchemas)
+	includeSchemas.addAll(targetSchemas)
 //	excludeSchemas.addAll(targetSchemas)
 //	includeTables.addAll(targetTables)
-//	excludeTables.addAll(targetTables)
+	excludeTables.addAll([changeLogTableName])
 	onlyCurrentSchema=true
 }
 
