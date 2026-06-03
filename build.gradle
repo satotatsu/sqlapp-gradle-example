@@ -1,9 +1,10 @@
 plugins {
-	id 'com.sqlapp.db' version '0.47.0'
+	id 'com.sqlapp.db' version '0.48.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
 }
+apply plugin: 'com.sqlapp.db'
 
 group = 'com.sqlapp'
 
@@ -35,7 +36,7 @@ tasks.withType(GroovyCompile).configureEach {
 //def commonSchemaName="app_common${schemaNameSuffix}"
 //def tranSchemaName="app_tran${schemaNameSuffix}"
 //String[] targetSchemas=[masterSchemaName, commonSchemaName, tranSchemaName]
-def targetSchemas=["schemaA"]
+def targetSchemas=["PUBLIC"]
 
 def changeLogTableName="changelog"
 
@@ -82,37 +83,6 @@ wrapper {
 tasks.register('copyLib', Copy) {
 	from configurations.implementation
 	into 'libs'
-}
-
-tasks.register('clTest') {
-	System.out.println("project.getClass().getClassLoader()="
-		+ project.getClass().getClassLoader());
-	System.out.println("project.getClass().getClassLoader().getParent()="
-		+ project.getClass().getClassLoader().getParent());
-	System.out.println("project.getClass().getClassLoader().getParent().getParent()="
-		+ project.getClass().getClassLoader().getParent().getParent());
-	System.out.println("")
-	
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader());
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent());
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent());
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent());
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent());
-	System.out.println("com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent().getParent()="
-		+ com.sqlapp.gradle.plugins.AbstractTask.class.getClassLoader().getParent().getParent().getParent().getParent().getParent());
-	System.out.println("")
-		
-	System.out.println("com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader()="
-		+ com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader());
-	System.out.println("com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader().getParent()="
-		+ com.sqlapp.data.db.dialect.resolver.ProductNameDialectResolver.class.getClassLoader().getParent());
-//	System.out.println("org.hsqldb.jdbc.JDBCDataSource.class.getClassLoader()="
-//		+ org.hsqldb.jdbc.JDBCDataSource.class.getClassLoader());
 }
 
 //cleanup library
@@ -167,7 +137,7 @@ countAllTables {
 		properties "${dataSourceProperties}"
 	}
 	includeSchemas.addAll(targetSchemas)
-	outputFormatType="TABLE"
+	outputFormatType="TABLE" //TSV OR CSV OR TABLE
 }
 
 //Execute DB schema version up
@@ -181,7 +151,7 @@ versionUp {
 	//downSqlDirectory = file("src/main/downSql")
 	fileDirectory = file("src/main/resources")
 	encoding = "UTF8"
-	lastChangeNumber = lastChangeToApply
+	lastChangeNumber = "${lastChangeToApply}"
 	showVersionOnly = false
 	withSeriesNumber = true
 	placeholderPrefix = '${'
@@ -427,7 +397,7 @@ generateHtml {
 	foreignKeyDefinitionDirectory = file("src/main/foreignkey")
 }
 
-tasks.register('task generateDataGeneratorSetting', com.sqlapp.gradle.plugins.GenerateDataGeneratorSettingTask){
+tasks.register('generateDataGeneratorSetting', com.sqlapp.gradle.plugins.GenerateDataGeneratorSettingTask){
 	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
