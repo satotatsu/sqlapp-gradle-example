@@ -7,3 +7,5 @@
 /.gradle/
 /html/
 /hsqltestdb/
+/.cache/
+/.fontconfig/
