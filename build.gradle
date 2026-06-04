@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.48.0'
+	id 'com.sqlapp.db' version '0.49.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -118,7 +118,8 @@ exportXml {
 }
 
 //Drop all tables
-dropObjects {
+/*
+tasks.register('dropObjects', com.sqlapp.gradle.plugins.DropObjectsTask) {
 	debug = true
 	dataSource {
 		properties "${dataSourceProperties}"
@@ -129,6 +130,7 @@ dropObjects {
 	dropObjects = false
 	dropTables = true
 }
+*/
 
 //Output Table rows count
 countAllTables {
@@ -137,7 +139,7 @@ countAllTables {
 		properties "${dataSourceProperties}"
 	}
 	includeSchemas.addAll(targetSchemas)
-	outputFormatType="TABLE" //TSV OR CSV OR TABLE
+	outputFormatType="TABLE" //TSV or CSV or TABLE
 }
 
 //Execute DB schema version up
@@ -147,8 +149,8 @@ versionUp {
 		properties "${dataSourceProperties}"
 	}
 //	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
-	sqlDirectory = file("src/main/sql")
-	//downSqlDirectory = file("src/main/downSql")
+	sqlDirectory = file("src/main/sqlup")
+	downSqlDirectory = file("src/main/downSql")
 	fileDirectory = file("src/main/resources")
 	encoding = "UTF8"
 	lastChangeNumber = "${lastChangeToApply}"
@@ -168,19 +170,17 @@ versionUp {
 }
 
 //Repair DB schema version up
-versionRepair {
-	debug = true
-//	parameters=['schemaNameSuffix':"${schemaNameSuffix}"]
+/*
+tasks.register('versionRepair', com.sqlapp.gradle.plugins.VersionRepairTask) {
 }
+*/
 
 //Execute DB schema version down
-versionDown {
-	debug = true
-//	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
+tasks.register('versionDown', com.sqlapp.gradle.plugins.VersionDownTask) {
 }
 
 //Import to DB
-importData {
+tasks.register('importData', com.sqlapp.gradle.plugins.ImportDataTask) {
 	debug = true
 	dataSource {
 		properties "${dataSourceProperties}"
@@ -206,7 +206,7 @@ importData {
 }
 
 //Export from DB
-exportData {
+tasks.register('exportData', com.sqlapp.gradle.plugins.ExportDataTask) {
 	debug = true
 	dataSource {
 		properties "${dataSourceProperties}"
@@ -304,7 +304,7 @@ tasks.register('zipHtml', Zip) {
 }
 
 //move XML
-task mvXml {
+tasks.register('mvXml') {
 	doLast {
 		File schemaFile=file("schemas/base/${schema_level}.xml");
 		if (schemaFile.exists()) {

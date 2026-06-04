@@ -1,100 +1,302 @@
 # sqlapp-gradle-example
-## 概要
-- このプロジェクトはDB管理ツールであるsqlappのサンプル用のプロジェクトです。このプロジェクトでは以下の事が出来ます。
-  1. DBのスキーマ情報をXMLファイルとして出力する。
-  1. スキーマ情報のXMLからER図を含めたドキュメントを生成する。
 
-## 類似のプロダクトとの比較
-- DBのスキーマ情報をHTMLとして出力するツールには[SchemaSpy](https://schemaspy.org/ "SchemaSpy")、[SchemaCrawler](https://www.schemacrawler.com/ "SchemaCrawler")などがありますが、SqlappはサポートするDBの機能の点でこれらのプロダクトよりも優れています。  
-  
-| サポートするオブジェクト |  Sqlapp | SchemaSpy | SchemaCrawler |
-| ----  | ---- | ---- | ---- |
-|  Table   |  OK  |  OK  |  OK  |
-|  View   |  OK  |  OK  |  OK  |
-|  Relations   |  OK  |  OK  |  OK  |
-|  Index   |  OK  |  OK  |  OK  |
-|  Index(Include Column)   |  OK  |  -  |  -  |
-|  Index(Where)   |  OK  |  -  |  -  |
-|  Unique Constraints   |  OK  |  OK  |  OK  |
-|  Check Constraints   |  OK  |  -  |  -  |
-|  Exclude Constraints(Postgres) |  OK  |  -  |  -  |
-|  Partitioning   |  OK  |  -  |  -  |
-|  Sequence   |  OK  |  OK  |  OK  |
-|  Inherits(Postgres)   |  OK  |  -  |  -  |
-|  Procedure   |  OK  |  OK  |  OK  |
-|  Function   |  OK  |  OK  |  OK  |
-|  Event   |  OK  |  -  |  -  |
-|  Synonym   |  OK  |  -  |  OK  |
-|  Rule   |  OK  |  -  |  -  |
-|  Domain   |  OK  |  -  |  OK  |
-|  Type   |  OK  |  -  |  OK  |
-|  Trigger   |  OK  |  -  |  OK  |
-|  User   |  OK  |  -  |  -  |
-|  Role   |  OK  |  -  |  -  |
-|  Privilege   |  OK  |  -  |  OK  |
-  
-## ディレクトリ構成
+## Overview
 
-```
+This project is a sample project for **sqlapp**, a database management tool.
+
+It demonstrates the following features:
+The sample is configured to run on HSQLDB, so you do not need to set up a database.
+
+1. Export database schema information to XML files.
+2. Generate HTML documentation, including ER diagrams, from schema XML files.
+3. Execute DDL statements to apply schema changes to the database.
+4. Generate template files for creating test data and generate the test data itself.
+
+## Requirements
+
+* Java 17 or later
+* Gradle 9.5.1 or later
+* Graphviz (required for HTML documentation generation)
+* Docker (required when using `generateHtml.sh` or `generateHtml.bat`)
+
+## Supported Databases
+
+sqlapp supports many DBMSs, including:
+
+* PostgreSQL
+* SQL Server
+* Oracle Database
+* MySQL
+* MariaDB
+* DB2
+* HSQLDB
+* H2 Database
+* SQLite
+* SAP HANA
+* CockroachDB
+* Other JDBC-compatible databases
+
+## Comparison with Similar Products
+
+Tools such as SchemaSpy and SchemaCrawler can also generate HTML documentation from database schemas.
+
+One of sqlapp's key strengths is its broad support for database objects, especially DBMS-specific features.
+
+| Supported Object                   | sqlapp | SchemaSpy | SchemaCrawler |
+| ---------------------------------- | :----: | :-------: | :-----------: |
+| Table                              |   ✓   |     ✓    |       ✓       |
+| View                               |   ✓   |     ✓    |       ✓       |
+| Relations                          |   ✓   |     ✓    |       ✓       |
+| Index                              |   ✓   |     ✓    |       ✓       |
+| Index (Include Columns)            |   ✓   |     -     |       -       |
+| Index (Partial/WHERE Clause)       |   ✓   |     -     |       -       |
+| Unique Constraints                 |   ✓   |     ✓    |       ✓      |
+| Check Constraints                  |   ✓   |     -     |       -       |
+| Exclusion Constraints (PostgreSQL) |   ✓   |     -     |       -       |
+| Partitioning                       |   ✓   |     -     |       -       |
+| Sequence                           |   ✓   |     ✓    |       ✓      |
+| Table Inheritance (PostgreSQL)     |   ✓   |     -     |       -       |
+| Procedure                          |   ✓   |     ✓    |       ✓      |
+| Function                           |   ✓   |     ✓    |       ✓      |
+| Event                              |   ✓   |     -     |       -       |
+| Synonym                            |   ✓   |     -     |       ✓      |
+| Rule                               |   ✓   |     -     |       -       |
+| Domain                             |   ✓   |     -     |       ✓      |
+| Type                               |   ✓   |     -     |       ✓      |
+| Trigger                            |   ✓   |     -     |       ✓      |
+| User                               |   ✓   |     -     |       -       |
+| Role                               |   ✓   |     -     |       -       |
+| Privilege                          |   ✓   |     -     |       ✓      |
+
+## Directory Structure
+
+```text
 root/
-　├ gradle/
-　├ html/ <- DBのスキーマ情報のドキュメントの出力先
-　├ lib/ <- 依存関係のあるライブラリを入れておくためのディレクトリ
-　├ schemas/ <- DBのスキーマ格納用のディレクトリ
-　│　└ base/ <- DBのスキーマのベースとなるバージョンファイルの格納用のディレクトリ。この上位に格納されたファイルとDIFFをとることが出来る。
-　├ src/
-　│　└ main/
-　│　　　├ config/
-　│　　　│ └ local/
-　│　　　│　  └ jdbcConfig.properties <- DBの接続先情報
-　│　　　├ export/ <- DBのデータのExport(or Import)先
-　│　　　├ foreignkey/
-　│　　　│　  └ fkey.def <- 物理的なリレーションがないが、論理的なリレーションをER図に反映するための定義のファイル
-　│　　　└ sql/ <- 何かの処理を行うためのSQLを入れておくためのディレクトリ
-　├ build.gradle <- gradleの定義ファイル
-　├ Dockerfile <- gradleのgenerateHtmlタスクが依存するgraphvizをDocker環境で実行するためのファイル
-　├ generateHtml.bat <- HTMLのドキュメント生成用のgradleタスクをDocker環境で行うためのコマンド(for Win)
-　├ generateHtml.sh <- HTMLのドキュメント生成用のgradleタスクをDocker環境で行うためのコマンド(for Linux)
-　├ gradle.properties <- gradleの設定ファイル
-　├ gradlew <- gradleラッパーファイル(for Linux)
-　└ gradlew.bat <- gradleの設定ファイル(for Win)
+ ├ gradle/
+ ├ html/                 <- Generated schema documentation
+ ├ lib/                  <- Directory for dependency libraries
+ ├ schemas/              <- Schema XML files
+ │ └ base/               <- Baseline schema
+ │                         Used for schema comparison
+ ├ src/
+ │ └ main/
+ │   ├ config/
+ │   │ └ local/
+ │   │   └ jdbcConfig.properties <- Database connection settings
+ │   ├ dictionaries/
+ │   │   <- Logical names and descriptions used in documentation
+ │   ├ export/
+ │   │   <- Data import/export files
+ │   ├ foreignkey/
+ │   │   └ fkey.def
+ │   │      <- Logical relationship definitions
+ │   ├ generator/
+ │   │   <- Test data generation settings
+ │   ├ sqlup/
+ │   │   <- DDL files for schema version up
+ │   ├ sqldown/
+ │   │   <- DDL files for schema version down
+ │   └ sql/
+ │       <- SQL files used by tasks
+ ├ build.gradle          <- Gradle build definition
+ ├ Dockerfile            <- Docker image definition including Graphviz
+ ├ generateHtml.bat      <- HTML generation script for Windows
+ ├ generateHtml.sh       <- HTML generation script for Linux/macOS
+ ├ gradle.properties     <- Gradle configuration
+ ├ gradlew               <- Gradle Wrapper (Linux/macOS)
+ └ gradlew.bat           <- Gradle Wrapper (Windows)
 ```
 
-## gradleタスク
-### 基本タスク
- - exportXml  
-   DBのスキーマ情報をXMLファイルとして出力するタスク。schemas/配下に出力される。
- - mvXml  
-   exportXmlで出力したXMLファイルをschemas/base配下に移動するだけのタスク。
- - generateHtml  
-   schemas/base配下のXMLからHTMLのドキュメントを生成するためのタスク。graphvizが必要なので実際はgenerateHtml.batを利用してDocker環境で実行する。
- - updateDictionaries  
-   generateHtmlで生成されるHTMLのテーブル、インデックス、カラムなどの論理名を記載するExcelファイルを生成するためのタスク。DBに変更があった場合は、exportXml、mvXml実効後でこのタスクを実行するとExcelが更新される。
+## Gradle Tasks
 
-### スキーマDIFF
- - diffSchemaXml  
-   schemas/とschemas/base配下のDBスキーマのXMLファイルのDIFFを出力する。
+### Core Tasks
 
-### スキーマバージョン管理タスク
- - versionUp
- - versionDown
- - versionRepair
+#### exportXml
 
-### DBデータImport、Export系
- - importData
- - exportData
+Exports database schema information to XML files.
 
-### DBテストデータ生成
- - generateDataGeneratorSetting
-   DBにデータを生成するための雛形となるファイルを生成するタスク。DBに接続して生成する。
- - generateData
-   指定されたDB生成用のファイルからDBに接続してデータを生成するタスク。
+Output directory:
 
-### その他
- - copyLib
- - cleanLib
- - deploy
- - generateSql
- - toExcel
- - toJson
- - toCsv
+```text
+schemas/
+```
+
+#### mvXml
+
+Moves the XML files generated by `exportXml` to the baseline schema directory.
+
+Destination:
+
+```text
+schemas/base/
+```
+
+#### generateHtml
+
+Generates HTML documentation, including ER diagrams, from schema XML files.
+
+Since Graphviz is required, it is recommended to use the provided scripts:
+
+* Linux/macOS: `generateHtml.sh`
+* Windows: `generateHtml.bat`
+
+Before running this task, generate and store the schema XML files:
+
+```bash
+gradlew exportXml
+gradlew mvXml
+```
+
+If Graphviz is already installed on your system, you can run:
+
+```bash
+gradlew generateHtml
+```
+
+#### updateDictionaries
+
+Generates files used to manage logical names and descriptions for documentation.
+
+The information in these files is reflected in the HTML documentation generated by `generateHtml`.
+
+After modifying the database schema, run:
+
+```bash
+gradlew exportXml
+gradlew mvXml
+gradlew updateDictionaries
+```
+
+### Schema Difference
+
+#### diffSchemaXml
+
+Compares schema XML files in:
+
+```text
+schemas/
+```
+
+and
+
+```text
+schemas/base/
+```
+
+and outputs the differences.
+
+```bash
+gradlew diffSchemaXml
+```
+
+### Schema Version Management
+
+#### versionUp
+
+Updates the database schema to the next version.
+
+```bash
+gradlew versionUp
+```
+
+#### versionDown
+
+Reverts the database schema to the previous version.
+
+To prevent accidental rollbacks, this task is commented out in the sample project.
+
+#### versionRepair
+
+Repairs schema version management metadata.
+
+### Database Data Import / Export
+
+#### importData
+
+Imports multiple files (Excel, CSV, TSV, XML, etc.) into the database.
+
+Foreign key dependencies are taken into account, so tables without dependencies are imported first.
+
+```bash
+gradlew importData
+```
+
+#### exportData
+
+Exports database table data to Excel, CSV, TSV, XML, and other formats.
+
+```bash
+gradlew exportData
+```
+
+### Test Data Generation
+
+#### generateDataGeneratorSetting
+
+Generates template configuration files for test data generation.
+
+The task connects to the database and generates configuration files that can be customized as needed.
+
+To try test data generation:
+
+```bash
+gradlew versionUp
+gradlew generateDataGeneratorSetting
+gradlew generateData
+```
+
+#### generateData
+
+Generates and inserts test data into the database according to the data generation configuration.
+
+Foreign key dependencies are taken into account, so tables without dependencies are processed first.
+
+In this sample project, static methods defined in classes under:
+
+```text
+src/main/java/data/generator
+```
+
+are automatically loaded and can be invoked from generation definitions, for example:
+
+```text
+hello()
+```
+
+### Other Tasks
+
+* copyLib
+* cleanLib
+* deploy
+* generateSql
+* toExcel
+* toJson
+* toCsv
+
+## Getting Started
+
+This sample project uses HSQLDB.
+
+Run the following commands in order:
+
+```bash
+gradlew versionUp
+gradlew exportXml
+gradlew mvXml
+gradlew generateDataGeneratorSetting
+gradlew generateData
+```
+
+Generate HTML documentation:
+
+Linux/macOS
+
+```bash
+./generateHtml.sh
+```
+
+Windows
+
+```bat
+generateHtml.bat
+```
