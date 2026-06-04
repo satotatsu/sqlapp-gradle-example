@@ -4,7 +4,6 @@ CREATE TABLE orders (
     customer_id BIGINT NOT NULL,
     order_date DATE NOT NULL,
     order_status VARCHAR(20) NOT NULL,
-
     CONSTRAINT fk_orders_customer
         FOREIGN KEY(customer_id)
         REFERENCES customers(customer_id)
