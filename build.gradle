@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.51.0'
+	id 'com.sqlapp.db' version '0.52.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -150,7 +150,7 @@ versionUp {
 	}
 //	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
 	sqlDirectory = file("src/main/sqlup")
-	downSqlDirectory = file("src/main/downSql")
+	downSqlDirectory = file("src/main/sqldown")
 	fileDirectory = file("src/main/resources")
 	encoding = "UTF8"
 	lastChangeNumber = "${lastChangeToApply}"

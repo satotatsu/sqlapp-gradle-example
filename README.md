@@ -199,11 +199,69 @@ Updates the database schema to the next version.
 gradlew versionUp
 ```
 
+```bash
+change_number  | applied_by | applied_at          | status    | description                         | series_number  | SQL(up) | SQL(down) | migration
+=======================================================================================================================================================
+               |            |                     | Initial   |                                     |                |         |           |
+20260101112150 | root       | 2026-06-06 17:51:54 | Completed | create_table_products               | 20260101112150 | 1       | 1         |
+20260102034455 | root       | 2026-06-06 17:51:54 | Completed | create_table_product_prices         | 20260101112150 | 1       | 1         |
+20260103052000 | root       | 2026-06-06 17:51:54 | Completed | create_table_tax_rates              | 20260101112150 | 1       | 1         |
+20260104150031 | root       | 2026-06-06 17:51:54 | Completed | create_table_warehouses             | 20260101112150 | 1       | 1         |
+20260105101033 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_balances     | 20260101112150 | 1       | 1         |
+20260106091144 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_transactions | 20260101112150 | 1       | 1         |
+20260107081255 | root       | 2026-06-06 17:51:54 | Completed | create_table_payment_terms          | 20260101112150 | 1       | 1         |
+20260108082356 | root       | 2026-06-06 17:51:54 | Completed | create_table_customers              | 20260101112150 | 1       | 1         |
+20260109111201 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_returns          | 20260101112150 | 1       | 1         |
+20260110121111 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_return_details   | 20260101112150 | 1       | 1         |
+20260602101156 | root       | 2026-06-06 17:51:54 | Completed | create_table_accounts_receivable    | 20260101112150 | 1       | 1         |
+20260603114111 | root       | 2026-06-06 17:51:54 | Completed | create_table_orders                 | 20260101112150 | 1       | 1         |
+20260604153122 | root       | 2026-06-06 17:51:54 | Completed | create_table_order_details          | 20260101112150 | 1       | 1         |
+20260605183132 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipments              | 20260101112150 | 1       | 1         |
+20260606160101 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipment_details       | 20260101112150 | 1       | 1         |
+20260607110135 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoices               | 20260101112150 | 1       | 1         |
+20260608110155 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoice_details        | 20260101112150 | 1       | 1         |
+20260609102145 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipts               | 20260609102145 | 1       | 1         |
+20260610092033 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipt_allocations    | 20260609102145 | 1       | 1         | <= current
+```
+
 #### versionDown
 
 Reverts the database schema to the previous version.
 
 To prevent accidental rollbacks, this task is commented out in the sample project.
+
+```bash
+gradlew versionDown
+```
+
+```
+********************** execute version sql. **********************
+versionNumber=20260610092033
+******************************************************************
+Database status.
+change_number  | applied_by | applied_at          | status    | description                         | series_number  | SQL(up) | SQL(down) | migration
+=======================================================================================================================================================
+               |            |                     | Initial   |                                     |                |         |           |
+20260101112150 | root       | 2026-06-06 17:51:54 | Completed | create_table_products               | 20260101112150 | 1       | 1         |
+20260102034455 | root       | 2026-06-06 17:51:54 | Completed | create_table_product_prices         | 20260101112150 | 1       | 1         |
+20260103052000 | root       | 2026-06-06 17:51:54 | Completed | create_table_tax_rates              | 20260101112150 | 1       | 1         |
+20260104150031 | root       | 2026-06-06 17:51:54 | Completed | create_table_warehouses             | 20260101112150 | 1       | 1         |
+20260105101033 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_balances     | 20260101112150 | 1       | 1         |
+20260106091144 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_transactions | 20260101112150 | 1       | 1         |
+20260107081255 | root       | 2026-06-06 17:51:54 | Completed | create_table_payment_terms          | 20260101112150 | 1       | 1         |
+20260108082356 | root       | 2026-06-06 17:51:54 | Completed | create_table_customers              | 20260101112150 | 1       | 1         |
+20260109111201 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_returns          | 20260101112150 | 1       | 1         |
+20260110121111 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_return_details   | 20260101112150 | 1       | 1         |
+20260602101156 | root       | 2026-06-06 17:51:54 | Completed | create_table_accounts_receivable    | 20260101112150 | 1       | 1         |
+20260603114111 | root       | 2026-06-06 17:51:54 | Completed | create_table_orders                 | 20260101112150 | 1       | 1         |
+20260604153122 | root       | 2026-06-06 17:51:54 | Completed | create_table_order_details          | 20260101112150 | 1       | 1         |
+20260605183132 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipments              | 20260101112150 | 1       | 1         |
+20260606160101 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipment_details       | 20260101112150 | 1       | 1         |
+20260607110135 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoices               | 20260101112150 | 1       | 1         |
+20260608110155 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoice_details        | 20260101112150 | 1       | 1         |
+20260609102145 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipts               | 20260609102145 | 1       | 1         | <= current
+20260610092033 |            |                     | Pending   | create_table_receipt_allocations    |                | 1       | 1         |
+```
 
 #### versionRepair
 
@@ -261,6 +319,41 @@ are automatically loaded and can be invoked from generation definitions, for exa
 
 ```text
 hello()
+```
+
+#### countAllTables
+
+Execute `SELECT COUNT(*)` to return the number of rows in all tables.
+
+```bash
+gradlew countAllTables
+```
+
+```bash
+> Task :countAllTables
+Registered driver with driverClassName=org.hsqldb.jdbc.JDBCDriver was not found, trying direct instantiation.
+schemaName | tableName              | count
+===========================================
+PUBLIC     | ACCOUNTS_RECEIVABLE    | 100
+PUBLIC     | CUSTOMERS              | 200
+PUBLIC     | INVENTORY_BALANCES     | 200
+PUBLIC     | INVENTORY_TRANSACTIONS | 200
+PUBLIC     | INVOICES               | 100
+PUBLIC     | INVOICE_DETAILS        | 100
+PUBLIC     | ORDERS                 | 100
+PUBLIC     | ORDER_DETAILS          | 100
+PUBLIC     | PAYMENT_TERMS          | 200
+PUBLIC     | PRODUCTS               | 200
+PUBLIC     | PRODUCT_PRICES         | 200
+PUBLIC     | RECEIPTS               | 100
+PUBLIC     | RECEIPT_ALLOCATIONS    | 100
+PUBLIC     | SALES_RETURNS          | 100
+PUBLIC     | SALES_RETURN_DETAILS   | 100
+PUBLIC     | SHIPMENTS              | 200
+PUBLIC     | SHIPMENT_DETAILS       | 100
+PUBLIC     | TAX_RATES              | 200
+PUBLIC     | WAREHOUSES             | 200
+PUBLIC     | changelog              | 19
 ```
 
 ### Other Tasks
