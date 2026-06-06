@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.49.0'
+	id 'com.sqlapp.db' version '0.51.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -120,7 +120,7 @@ exportXml {
 //Drop all tables
 /*
 tasks.register('dropObjects', com.sqlapp.gradle.plugins.DropObjectsTask) {
-	debug = true
+	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
@@ -134,7 +134,7 @@ tasks.register('dropObjects', com.sqlapp.gradle.plugins.DropObjectsTask) {
 
 //Output Table rows count
 countAllTables {
-	debug = true
+	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
@@ -421,6 +421,7 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	directory=file("src/main/generator")
 	queryCommitInterval=500
 	onlyCurrentSchema=true
+	fileFilter={f->true}
 }
 
 //Display MySQL connection info
