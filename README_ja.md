@@ -304,7 +304,30 @@ gradlew generateData
 #### generateData
 
 テストデータ生成定義に従い、DBへテストデータを投入します。Foreign Key制約を考慮して、生成は依存関係のないテーブルから実行します。
+
+```bash
+gradlew generateData
+```
+
 サンプルでは、src/main/java/data/generator配下に存在するクラスのスタティックメソッドを自動的に読みこむようにしてあるので、ここに追加したメソッドをhello()のように呼び出せます。
+
+#### convertGeneratorSettingYaml
+
+generateDataGeneratorSettingで生成したファイルをYAML形式に変換します。
+EXCELの方がファイルの編集がしやすいですが、構成管理する場合はYAMLなどのテキストの方がやりやすいので、このタスクでYAML形式に変換します。
+
+```bash
+gradlew convertGeneratorSettingYaml
+```
+
+#### convertGeneratorSettingExcel
+
+generateDataGeneratorSettingで生成したファイルをEXCEL形式に変換します。
+YAMLで構成管理にしたファイルを編集する場合に、EXCELの方がファイルの編集がしやすいため、このタスクでExcel形式に変換します。
+
+```bash
+gradlew convertGeneratorSettingExcel
+```
 
 #### countAllTables
 

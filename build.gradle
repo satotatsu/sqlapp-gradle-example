@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.52.0'
+	id 'com.sqlapp.db' version '0.53.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -422,6 +422,24 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	queryCommitInterval=500
 	onlyCurrentSchema=true
 	fileFilter={f->true}
+}
+
+tasks.register('convertGeneratorSettingYaml', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+	debug = false
+	directory=file("src/main/generator")
+	fileType="YAML" //EXCEL2007 JSON YAML TOML
+	fileFilter={f->true}
+	recursive=true
+	removeOriginalFile=true
+}
+
+tasks.register('convertGeneratorSettingExcel', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+	debug = false
+	directory=file("src/main/generator")
+	fileType="EXCEL2007" //EXCEL2007 JSON YAML TOML
+	fileFilter={f->true}
+	recursive=true
+	removeOriginalFile=true
 }
 
 //Display MySQL connection info
