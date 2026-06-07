@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.49.0'
+	id 'com.sqlapp.db' version '0.53.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -120,7 +120,7 @@ exportXml {
 //Drop all tables
 /*
 tasks.register('dropObjects', com.sqlapp.gradle.plugins.DropObjectsTask) {
-	debug = true
+	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
@@ -134,7 +134,7 @@ tasks.register('dropObjects', com.sqlapp.gradle.plugins.DropObjectsTask) {
 
 //Output Table rows count
 countAllTables {
-	debug = true
+	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
@@ -150,7 +150,7 @@ versionUp {
 	}
 //	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
 	sqlDirectory = file("src/main/sqlup")
-	downSqlDirectory = file("src/main/downSql")
+	downSqlDirectory = file("src/main/sqldown")
 	fileDirectory = file("src/main/resources")
 	encoding = "UTF8"
 	lastChangeNumber = "${lastChangeToApply}"
@@ -421,6 +421,25 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	directory=file("src/main/generator")
 	queryCommitInterval=500
 	onlyCurrentSchema=true
+	fileFilter={f->true}
+}
+
+tasks.register('convertGeneratorSettingYaml', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+	debug = false
+	directory=file("src/main/generator")
+	fileType="YAML" //EXCEL2007 JSON YAML TOML
+	fileFilter={f->true}
+	recursive=true
+	removeOriginalFile=true
+}
+
+tasks.register('convertGeneratorSettingExcel', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+	debug = false
+	directory=file("src/main/generator")
+	fileType="EXCEL2007" //EXCEL2007 JSON YAML TOML
+	fileFilter={f->true}
+	recursive=true
+	removeOriginalFile=true
 }
 
 //Display MySQL connection info
