@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.53.0'
+	id 'com.sqlapp.db' version '0.54.snapshot'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -40,12 +40,13 @@ def targetSchemas=["PUBLIC"]
 
 def changeLogTableName="changelog"
 
-def exportDataTargetTables=[] as String[]
+def exportDataTargetTables=["WAREHOUSES"] as String[]
 def exportXmlWithRowDumpTables=[] as String[]
 def font="${font}"
 
 // add Repository
 repositories {
+	mavenLocal()
 	mavenCentral()
 }
 
@@ -112,7 +113,7 @@ exportXml {
 	target = "${schema_level}"
 	outputDirectory = file("schemas")
 	outputFileName = "${schema_level}.xml"
-	dumpRows = true
+	dumpRows = false
 	includeSchemas.addAll(targetSchemas)
 	includeRowDumpTables.addAll(exportXmlWithRowDumpTables)
 }
@@ -216,9 +217,9 @@ tasks.register('exportData', com.sqlapp.gradle.plugins.ExportDataTask) {
 	outputDirectory=file("src/main/export")
 	csvEncoding="UTF8"
 	//xls,xlsx,ods,csv,tsv,xml,json
-	outputFileType="xlsx"
+	outputFileType="CSV" //EXCEL OR CSV OR TSV OR YAML OR JSONL
 //	fileFilter={f->true}
-	includeSchemas.addAll(targetSchemas)
+	//includeSchemas.addAll(targetSchemas)
 	includeTables.addAll(exportDataTargetTables)
 	tableOptions {
 		
@@ -356,6 +357,7 @@ generateSql {
 //	lastChangeNumber="${lastChangeToApply}"
 	changeNumberStep = 10
 	numberOfDigits = 19
+	excludeTables.addAll([changeLogTableName])
 	schemaOptions {
 		outputCommit = false
 		dropIfExists = true
@@ -404,7 +406,7 @@ tasks.register('generateDataGeneratorSetting', com.sqlapp.gradle.plugins.Generat
 	}
 	outputDirectory=file("src/main/generator")
 	sqlType='INSERT'  //INSERT Only
-	fileType="EXCEL2007" //EXCEL2007 or YAML or JSON or TOML
+	fileType="EXCEL" //EXCEL or YAML or JSON or TOML
 	includeSchemas.addAll(targetSchemas)
 //	excludeSchemas.addAll(targetSchemas)
 //	includeTables.addAll(targetTables)
@@ -424,19 +426,19 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	fileFilter={f->true}
 }
 
-tasks.register('convertGeneratorSettingYaml', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+tasks.register('convertGeneratorSettingToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
 	debug = false
 	directory=file("src/main/generator")
-	fileType="YAML" //EXCEL2007 JSON YAML TOML
+	fileType="YAML" //EXCEL JSON YAML TOML
 	fileFilter={f->true}
 	recursive=true
 	removeOriginalFile=true
 }
 
-tasks.register('convertGeneratorSettingExcel', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+tasks.register('convertGeneratorSettingToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
 	debug = false
 	directory=file("src/main/generator")
-	fileType="EXCEL2007" //EXCEL2007 JSON YAML TOML
+	fileType="EXCEL" //EXCEL JSON YAML TOML
 	fileFilter={f->true}
 	recursive=true
 	removeOriginalFile=true
