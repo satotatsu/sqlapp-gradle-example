@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.54.snapshot'
+	id 'com.sqlapp.db' version '0.56.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -11,10 +11,10 @@ group = 'com.sqlapp'
 java {
 	withJavadocJar();
 	withSourcesJar();
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17);
+		languageVersion = JavaLanguageVersion.of(21);
 	}
 }
 	
@@ -372,7 +372,7 @@ generateSql {
 
 //Generate or Update Dictionaries for HTML
 updateDictionaries {
-	withSchema = { menuName -> true } //menuName=schemas or tables or column or etc
+	withSchema = { menuName -> true } //menuName=schemas or tables or columns or etc
 	targetFile = file("schemas/base/${schema_level}.xml")
 	dictionaryFileDirectory = file("src/main/dictionaries")
 	dictionaryFileType = "xlsx"
