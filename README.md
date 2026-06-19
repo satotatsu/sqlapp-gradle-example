@@ -1,3 +1,5 @@
+<img src="https://img.shields.io/github/stars/satotatsu/sqlapp?style=sqlapp" alt="GitHub Repo stars">
+
 # sqlapp-gradle-example
 
 ## Overview
@@ -99,9 +101,6 @@ root/
  │   └ sql/
  │       <- SQL files used by tasks
  ├ build.gradle          <- Gradle build definition
- ├ Dockerfile            <- Docker image definition including Graphviz
- ├ generateHtml.bat      <- HTML generation script for Windows
- ├ generateHtml.sh       <- HTML generation script for Linux/macOS
  ├ gradle.properties     <- Gradle configuration
  ├ gradlew               <- Gradle Wrapper (Linux/macOS)
  └ gradlew.bat           <- Gradle Wrapper (Windows)
@@ -404,14 +403,6 @@ gradlew generateData
 
 Generate HTML documentation:
 
-Linux/macOS
-
 ```bash
-./generateHtml.sh
-```
-
-Windows
-
-```bat
-generateHtml.bat
+gradlew generateHtml
 ```
