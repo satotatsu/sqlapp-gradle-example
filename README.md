@@ -36,6 +36,8 @@ Supports:
 
 ![ER Diagram](docs/examples/html/diagrams/_summary_relations_small.svg)
 
+![Sample Document](docs/examples/html/index.html)
+
 📖 **Learn more:** [`docs/html-documentation.md`](docs/html-documentation.md)
 
 ---
