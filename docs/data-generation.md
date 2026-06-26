@@ -1,5 +1,8 @@
 
 
 ```bash
-gradlew generateHtmlDocs
+gradlew exportXml
+gradlew mvXml
+gradlew generateDataConfig
+gradlew generateData
 ```
