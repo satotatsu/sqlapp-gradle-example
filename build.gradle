@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.59.0'
+	id 'com.sqlapp.db' version '0.62.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -42,7 +42,6 @@ def changeLogTableName="changelog"
 
 def exportDataTargetTables=["WAREHOUSES"] as String[]
 def exportXmlWithRowDumpTables=[] as String[]
-def font="${font}"
 
 // add Repository
 repositories {
@@ -100,7 +99,7 @@ tasks.register('deploy') {
 }
 
 //Export Schema XML
-exportXml {
+exportSchemaXml {
 	debug = false
 	dataSource {
 //		driverClassName=driverClassName
@@ -111,7 +110,7 @@ exportXml {
 	}
 //	target="catalog" or "schema" or "tables" or...
 	target = "${schema_level}"
-	outputDirectory = file("schemas")
+	outputDirectory = file("schemas/latest")
 	outputFileName = "${schema_level}.xml"
 	dumpRows = false
 	includeSchemas.addAll(targetSchemas)
@@ -143,16 +142,16 @@ countAllTables {
 	outputFormatType="TABLE" //TSV or CSV or TABLE
 }
 
-//Execute DB schema version up
-versionUp {
+//Execute DB schema migration
+migration {
 	debug = true
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
 //	parameters = ['schemaNameSuffix':"${schemaNameSuffix}"]
-	sqlDirectory = file("src/main/sqlup")
-	downSqlDirectory = file("src/main/sqldown")
-	fileDirectory = file("src/main/resources")
+	sqlDirectory     = file("src/main/sql/migration/up")
+	downSqlDirectory = file("src/main/sql/migration/down")
+	fileDirectory    = file("src/main/resources")
 	encoding = "UTF8"
 	lastChangeNumber = "${lastChangeToApply}"
 	showVersionOnly = false
@@ -172,12 +171,12 @@ versionUp {
 
 //Repair DB schema version up
 /*
-tasks.register('versionRepair', com.sqlapp.gradle.plugins.VersionRepairTask) {
+tasks.register('migrationRepair', com.sqlapp.gradle.plugins.VersionRepairTask) {
 }
 */
 
 //Execute DB schema version down
-tasks.register('versionDown', com.sqlapp.gradle.plugins.VersionDownTask) {
+tasks.register('migrationDown', com.sqlapp.gradle.plugins.MigrationDownTask) {
 }
 
 //Import to DB
@@ -227,7 +226,7 @@ tasks.register('exportData', com.sqlapp.gradle.plugins.ExportDataTask) {
 }
 
 //Convert data file to Excel format.
-tasks.register('toExcel', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+tasks.register('toExcel', com.sqlapp.gradle.plugins.ConvertDataTask) {
 	debug = false
 	directory=file("src/main/export")
 	fileFilter = { f->true }
@@ -240,7 +239,7 @@ tasks.register('toExcel', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
 }
 
 //Convert data file to JSON format.
-tasks.register('toJson', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+tasks.register('toJson', com.sqlapp.gradle.plugins.ConvertDataTask) {
 	debug = false
 	directory=file("src/main/export")
 	fileFilter = { f->true }
@@ -251,7 +250,7 @@ tasks.register('toJson', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
 //	outputDirectory=file("src/main/export2")
 }
 
-tasks.register('toYaml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+tasks.register('toYaml', com.sqlapp.gradle.plugins.ConvertDataTask) {
 	debug = false
 	directory=file("src/main/export")
 	fileFilter = { f-> true }
@@ -262,7 +261,7 @@ tasks.register('toYaml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
 //	outputDirectory=file("src/main/export2")
 }
 
-tasks.register('toToml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+tasks.register('toToml', com.sqlapp.gradle.plugins.ConvertDataTask) {
 	debug = false
 	directory=file("src/main/export")
 	fileFilter = { f-> true }
@@ -274,7 +273,7 @@ tasks.register('toToml', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
 }
 
 //Convert data file to CSV format.
-tasks.register('toCsv', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
+tasks.register('toCsv', com.sqlapp.gradle.plugins.ConvertDataTask) {
 	debug = false
 	directory = file("src/main/export")
 	fileFilter = { f-> true }
@@ -288,8 +287,8 @@ tasks.register('toCsv', com.sqlapp.gradle.plugins.ConvertDataFileTask) {
 
 //Output Diff of XML
 diffSchemaXml {
-	originalFile = file("schemas/base/${schema_level}.xml")
-	targetFile = file("schemas/${schema_level}.xml")
+	originalFile = file("schemas/baseline/${schema_level}.xml")
+	targetFile = file("schemas/current/${schema_level}.xml")
 	equalsHandler {
 //		referenceEqualsPredicate={(a,b)->a==null&&b==null||a!=null&&a.is(b)||b!=null&&b.is()}
 //		valueEqualsPredicate={(propertyName,eq, obj1, obj2, val1, val2)->eq}
@@ -305,27 +304,27 @@ tasks.register('zipHtml', Zip) {
 }
 
 //move XML
-tasks.register('mvXml') {
+tasks.register('mvSchemaXml') {
 	doLast {
-		File schemaFile=file("schemas/base/${schema_level}.xml");
+		File schemaFile=file("schemas/baseline/${schema_level}.xml");
 		if (schemaFile.exists()) {
 			schemaFile.delete();
 		} else {
 			File parent=schemaFile.getParentFile();
 			parent.mkdirs();
 		}
-		file("schemas/${schema_level}.xml").renameTo(file("schemas/base/${schema_level}.xml"))
+		file("schemas/current/${schema_level}.xml").renameTo(file("schemas/baseline/${schema_level}.xml"))
 	}
 }
 
 //Generate ALTER SQL by Schema XML Diff 
 generateDiffSql {
-	originalFile = file("schemas/base/${schema_level}.xml")
-	targetFile = file("schemas/${schema_level}.xml")
+	originalFile = file("schemas/baseline/${schema_level}.xml")
+	targetFile = file("schemas/latest/${schema_level}.xml")
 	encoding = "UTF8"
 	outputAsMultiFiles = false
 	withVersionDown = true
-	outputDirectory = file("src/main/sql")
+	outputDirectory = file("src/main/sql/generated")
 	outputFileExtension = "sql"
 //	lastChangeNumber="${lastChangeToApply}"
 	changeNumberStep = 10
@@ -349,10 +348,10 @@ generateDiffSql {
 
 //Generate SQL by schema XML
 generateSql {
-	targetFile = file("schemas/base/${schema_level}.xml")
+	targetFile = file("schemas/baseline/${schema_level}.xml")
 	encoding = "UTF8"
 	outputAsMultiFiles = true
-	outputDirectory = file("src/main/gensql")
+	outputDirectory = file("src/main/sql/generated")
 	outputFileExtension = "sql"
 //	lastChangeNumber="${lastChangeToApply}"
 	changeNumberStep = 10
@@ -371,20 +370,28 @@ generateSql {
 }
 
 //Generate or Update Dictionaries for HTML
-updateDictionaries {
+tasks.register('dictionariesToExcel', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
 	withSchema = { menuName -> true } //menuName=schemas or tables or columns or etc
-	targetFile = file("schemas/base/${schema_level}.xml")
-	dictionaryFileDirectory = file("src/main/dictionaries")
-	dictionaryFileType = "xlsx"
+	targetFile = file("schemas/baseline/${schema_level}.xml")
+	directory = file("src/main/dictionaries/yaml")
+	outputDirectory = file("src/main/dictionaries/xlsx")
+	fileType = "xlsx"
+}
+
+tasks.register('dictionariesToYaml', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
+	withSchema = { menuName -> true } //menuName=schemas or tables or columns or etc
+	targetFile = file("schemas/baseline/${schema_level}.xml")
+	directory = file("src/main/dictionaries/xlsx")
+	outputDirectory = file("src/main/dictionaries/yaml")
+	fileType = "yaml"
 }
 
 //Generate HTML Document
-generateHtml {
-	targetFile = file("schemas/base/${schema_level}.xml")
+generateHtmlDocs {
+	targetFile = file("schemas/baseline/${schema_level}.xml")
 	dictionaryFileDirectory = file("src/main/dictionaries")
 	dictionaryFileType = "xml"
 	outputDirectory = file("html/")
-	diagramFont = font //gradlew avaliableFonts
 	multiThread = true
 	//
 	useSchemaNameDirectory = false
@@ -399,12 +406,12 @@ generateHtml {
 	foreignKeyDefinitionDirectory = file("src/main/foreignkey")
 }
 
-tasks.register('generateDataGeneratorSetting', com.sqlapp.gradle.plugins.GenerateDataGeneratorSettingTask){
+tasks.register('generateDataConfig', com.sqlapp.gradle.plugins.GenerateDataConfigTask){
 	debug = false
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
-	outputDirectory=file("src/main/generator")
+	outputDirectory=file("src/main/generator/excel")
 	sqlType='INSERT'  //INSERT Only
 	fileType="EXCEL" //EXCEL or YAML or JSON or TOML
 	includeSchemas.addAll(targetSchemas)
@@ -419,25 +426,27 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
-	evaluator.addPackageImports("data.generator")
+	evaluator.addPackageImports("functions")
 	directory=file("src/main/generator")
 	queryCommitInterval=500
 	onlyCurrentSchema=true
 	fileFilter={f->true}
 }
 
-tasks.register('convertGeneratorSettingToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+tasks.register('generatorToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory=file("src/main/generator")
+	directory=file("src/main/generator/excel")
+	outputDirectory=file("src/main/generator/yaml")
 	fileType="YAML" //EXCEL JSON YAML TOML
 	fileFilter={f->true}
 	recursive=true
 	removeOriginalFile=true
 }
 
-tasks.register('convertGeneratorSettingToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorSettingFileTask){
+tasks.register('generatorToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory=file("src/main/generator")
+	directory=file("src/main/generator/yaml")
+	outputDirectory=file("src/main/generator/excel")
 	fileType="EXCEL" //EXCEL JSON YAML TOML
 	fileFilter={f->true}
 	recursive=true
