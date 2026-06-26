@@ -1,408 +1,223 @@
-<img src="https://img.shields.io/github/stars/satotatsu/sqlapp?style=sqlapp" alt="GitHub Repo stars">
+# sqlapp
 
-# sqlapp-gradle-example
+**sqlapp** is a Gradle-based database engineering toolkit that unifies schema management, documentation generation, test data generation, and data import/export into a single Gradle workflow.
 
-## Overview
+It provides a comprehensive schema model, HTML documentation, schema diff analysis, high-performance streaming data generation, and flexible data transformation across multiple formats.
 
-This project is a sample project for **sqlapp**, a database management tool.
+## ✨ Key Features
 
-It demonstrates the following features:
-The sample is configured to run on HSQLDB, so you do not need to set up a database.
+### 🚀 Schema Management
 
-1. Export database schema information to XML files.
-2. Generate HTML documentation, including ER diagrams, from schema XML files.
-3. Execute DDL statements to apply schema changes to the database.
-4. Generate template files for creating test data and generate the test data itself.
+* Schema version management
+* XML-based schema export
+* Schema comparison and diff
+* SQL generation and migration support
 
-## Requirements
+📖 **Learn more:** [`docs/migration.md`](docs/migration.md) · [`docs/schema-model.md`](docs/schema-model.md) · [`docs/schema-diff.md`](docs/schema-diff.md)
 
-* Java 17 or later
-* Gradle 9.5.1 or later
-* Graphviz (required for HTML documentation generation)
-* Docker (required when using `generateHtml.sh` or `generateHtml.bat`)
+---
+
+### 📖 HTML Documentation
+
+Generate searchable HTML documentation with ER Diagram directly from the database schema.
+
+Supports:
+
+* Tables and columns
+* Keys and constraints
+* Views and sequences
+* Functions and stored procedures (including source code)
+* Synonyms
+* Tablespaces
+* Partitioning metadata
+* SQL Server Partition Functions / Partition Schemes
+* PostgreSQL `INHERITS`
+* External Tables
+
+![ER Diagram](docs/examples/html/diagrams/_summary_relations_small.svg)
+
+📖 **Learn more:** [`docs/html-documentation.md`](docs/html-documentation.md)
+
+---
+
+### 📚 Dictionary Management
+
+Generate editable dictionary templates (`tables.xlsx`, `columns.xlsx`, etc.) from the schema.
+
+Business-friendly names and descriptions can be maintained in Excel or CSV or YAML and automatically reflected in the generated HTML documentation.
+
+📖 **Learn more:** [`docs/dictionary.md`](docs/dictionary.md)
+
+---
+
+### 🔗 Logical Foreign Keys
+
+Document logical relationships that do not exist as physical foreign key constraints.
+
+Example:
+
+```text
+#job_details->jobs
+#user_jobs(created_at, id)->jobs(created_at, id)
+```
+
+These relationships are visualized in the generated documentation and ER diagrams.
+
+📖 **Learn more:** [`docs/logical-foreign-keys.md`](docs/logical-foreign-keys.md)
+
+---
+
+### 🌊 Test Data Generation
+
+Generate realistic relational test data with automatic foreign key dependency analysis.
+
+Features include:
+
+* Streaming architecture
+* Tens of millions of rows
+* MVEL expressions
+* Custom Java static functions
+* Configurable JDBC batching
+* Iterator, SQL, CSV, TSV, and file-based data sources
+* Excel ↔ YAML configuration conversion
+
+📖 **Learn more:** [`docs/data-generation.md`](docs/data-generation.md)
+
+---
+
+### 🔄 Data Import / Export
+
+Import and export data using a streaming architecture.
+
+Supported formats include:
+
+* Database tables
+* CSV
+* TSV
+* Excel
+* YAML
+* JSONL
+
+Supports MVEL-based transformation and binary (`InputStream`) handling.
+
+📖 **Learn more:** [`docs/data-import-export.md`](docs/data-import-export.md)
+
+---
+
+### 🔄 Format Conversion
+
+Convert data between supported formats without writing custom scripts.
+
+Examples include:
+
+* CSV ⇔ TSV
+* CSV ⇔ Excel
+* Excel ⇔ YAML
+* JSONL ⇔ CSV
+
+Generator configuration conversion (Excel ⇔ YAML) is also supported.
+
+📖 **Learn more:** [`docs/format-conversion.md`](docs/format-conversion.md)
+
+---
+
+### ☕ MVEL & Java Extensions
+
+Customize generation and transformation logic using MVEL expressions and user-defined Java static methods.
+
+Examples:
+
+* Custom ID generation
+* Data normalization
+* Business rule implementation
+* Date and string utilities
+* Weighted random generation
+
+📖 **Learn more:** [`docs/mvel.md`](docs/mvel.md)
+
+---
+
+## 🏗️ Architecture
+
+```text
+                    Database
+                        │
+                        ▼
+                  Schema Export
+                        │
+                        ▼
+                   Schema XML
+          ┌─────────────┼─────────────┐
+          │             │             │
+          ▼             ▼             ▼
+    HTML Documentation  Schema Diff  Dictionaries
+          │
+          ▼
+  Logical Foreign Keys
+
+CSV / TSV / Excel / YAML / JSONL / SQL / Iterator
+                        │
+                        ▼
+              MVEL + Java Extensions
+                        │
+                        ▼
+              Streaming Processing
+                        │
+                        ▼
+               Import / Export / Generate
+```
+
+---
+
+## 📚 Documentation
+
+| Topic                                                          | Description                                     |
+| -------------------------------------------------------------- | ----------------------------------------------- |
+| [`docs/getting-started.md`](docs/getting-started.md)           | Installation and first steps                    |
+| [`docs/concepts.md`](docs/concepts.md)                         | Core architecture and concepts                  |
+| [`docs/migration.md`](docs/migration.md)                       | Schema version management                       |
+| [`docs/schema-model.md`](docs/schema-model.md)                 | XML schema model and supported database objects |
+| [`docs/html-documentation.md`](docs/html-documentation.md)     | HTML documentation generation                   |
+| [`docs/schema-diff.md`](docs/schema-diff.md)                   | XML-based schema comparison                     |
+| [`docs/dictionary.md`](docs/dictionary.md)                     | Dictionary files (Excel/YAML)                   |
+| [`docs/logical-foreign-keys.md`](docs/logical-foreign-keys.md) | Logical foreign key definitions                 |
+| [`docs/data-generation.md`](docs/data-generation.md)           | Streaming test data generation                  |
+| [`docs/data-import-export.md`](docs/data-import-export.md)     | Data import/export and transformation           |
+| [`docs/format-conversion.md`](docs/format-conversion.md)       | Format conversion between supported file types  |
+| [`docs/mvel.md`](docs/mvel.md)                                 | MVEL expressions and Java extensions            |
+
+---
 
 ## Supported Databases
 
-sqlapp supports many DBMSs, including:
+sqlapp supports many JDBC-compatible databases, including:
 
 * PostgreSQL
-* SQL Server
+* Microsoft SQL Server
 * Oracle Database
 * MySQL
 * MariaDB
-* DB2
-* HSQLDB
-* H2 Database
+* IBM Db2
 * SQLite
+* H2
+* HSQLDB
 * SAP HANA
 * CockroachDB
-* Other JDBC-compatible databases
 
-## Comparison with Similar Products
+---
 
-Tools such as SchemaSpy and SchemaCrawler can also generate HTML documentation from database schemas.
+## Why sqlapp?
 
-One of sqlapp's key strengths is its broad support for database objects, especially DBMS-specific features.
+sqlapp provides an integrated platform for the entire database development lifecycle:
 
-| Supported Object                   | sqlapp | SchemaSpy | SchemaCrawler |
-| ---------------------------------- | :----: | :-------: | :-----------: |
-| Table                              |   ✓   |     ✓    |       ✓       |
-| View                               |   ✓   |     ✓    |       ✓       |
-| Relations                          |   ✓   |     ✓    |       ✓       |
-| Index                              |   ✓   |     ✓    |       ✓       |
-| Index (Include Columns)            |   ✓   |     -     |       -       |
-| Index (Partial/WHERE Clause)       |   ✓   |     -     |       -       |
-| Unique Constraints                 |   ✓   |     ✓    |       ✓      |
-| Check Constraints                  |   ✓   |     -     |       -       |
-| Exclusion Constraints (PostgreSQL) |   ✓   |     -     |       -       |
-| Partitioning                       |   ✓   |     -     |       -       |
-| Sequence                           |   ✓   |     ✓    |       ✓      |
-| Table Inheritance (PostgreSQL)     |   ✓   |     -     |       -       |
-| Procedure                          |   ✓   |     ✓    |       ✓      |
-| Function                           |   ✓   |     ✓    |       ✓      |
-| Event                              |   ✓   |     -     |       -       |
-| Synonym                            |   ✓   |     -     |       ✓      |
-| Rule                               |   ✓   |     -     |       -       |
-| Domain                             |   ✓   |     -     |       ✓      |
-| Type                               |   ✓   |     -     |       ✓      |
-| Trigger                            |   ✓   |     -     |       ✓      |
-| User                               |   ✓   |     -     |       -       |
-| Role                               |   ✓   |     -     |       -       |
-| Privilege                          |   ✓   |     -     |       ✓      |
+* 🚀 Schema management
+* 📖 Documentation generation
+* 🔍 Schema diff analysis
+* 📚 Dictionary management
+* 🔗 Logical relationship modeling
+* 🌊 High-performance test data generation
+* 🔄 Data import/export
+* 📁 Multi-format conversion
+* ☕ Expression-based customization with MVEL and Java
 
-## Directory Structure
-
-```text
-root/
- ├ gradle/
- ├ html/                 <- Generated schema documentation
- ├ lib/                  <- Directory for dependency libraries
- ├ schemas/              <- Schema XML files
- │ └ base/               <- Baseline schema
- │                         Used for schema comparison
- ├ src/
- │ └ main/
- │   ├ config/
- │   │ └ local/
- │   │   └ jdbcConfig.properties <- Database connection settings
- │   ├ dictionaries/
- │   │   <- Logical names and descriptions used in documentation
- │   ├ export/
- │   │   <- Data import/export files
- │   ├ foreignkey/
- │   │   └ fkey.def
- │   │      <- Logical relationship definitions
- │   ├ generator/
- │   │   <- Test data generation settings
- │   ├ sqlup/
- │   │   <- DDL files for schema version up
- │   ├ sqldown/
- │   │   <- DDL files for schema version down
- │   └ sql/
- │       <- SQL files used by tasks
- ├ build.gradle          <- Gradle build definition
- ├ gradle.properties     <- Gradle configuration
- ├ gradlew               <- Gradle Wrapper (Linux/macOS)
- └ gradlew.bat           <- Gradle Wrapper (Windows)
-```
-
-## Gradle Tasks
-
-### Core Tasks
-
-#### exportXml
-
-Exports database schema information to XML files.
-
-Output directory:
-
-```text
-schemas/
-```
-
-#### mvXml
-
-Moves the XML files generated by `exportXml` to the baseline schema directory.
-
-Destination:
-
-```text
-schemas/base/
-```
-
-#### generateHtml
-
-Generates HTML documentation, including ER diagrams, from schema XML files.
-
-Since Graphviz is required, it is recommended to use the provided scripts:
-
-* Linux/macOS: `generateHtml.sh`
-* Windows: `generateHtml.bat`
-
-Before running this task, generate and store the schema XML files:
-
-```bash
-gradlew exportXml
-gradlew mvXml
-```
-
-If Graphviz is already installed on your system, you can run:
-
-```bash
-gradlew generateHtml
-```
-
-#### updateDictionaries
-
-Generates files used to manage logical names and descriptions for documentation.
-
-The information in these files is reflected in the HTML documentation generated by `generateHtml`.
-
-After modifying the database schema, run:
-
-```bash
-gradlew exportXml
-gradlew mvXml
-gradlew updateDictionaries
-```
-
-### Schema Difference
-
-#### diffSchemaXml
-
-Compares schema XML files in:
-
-```text
-schemas/
-```
-
-and
-
-```text
-schemas/base/
-```
-
-and outputs the differences.
-
-```bash
-gradlew diffSchemaXml
-```
-
-### Schema Version Management
-
-#### versionUp
-
-Updates the database schema to the next version.
-
-```bash
-gradlew versionUp
-```
-
-```bash
-change_number  | applied_by | applied_at          | status    | description                         | series_number  | SQL(up) | SQL(down) | migration
-=======================================================================================================================================================
-               |            |                     | Initial   |                                     |                |         |           |
-20260101112150 | root       | 2026-06-06 17:51:54 | Completed | create_table_products               | 20260101112150 | 1       | 1         |
-20260102034455 | root       | 2026-06-06 17:51:54 | Completed | create_table_product_prices         | 20260101112150 | 1       | 1         |
-20260103052000 | root       | 2026-06-06 17:51:54 | Completed | create_table_tax_rates              | 20260101112150 | 1       | 1         |
-20260104150031 | root       | 2026-06-06 17:51:54 | Completed | create_table_warehouses             | 20260101112150 | 1       | 1         |
-20260105101033 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_balances     | 20260101112150 | 1       | 1         |
-20260106091144 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_transactions | 20260101112150 | 1       | 1         |
-20260107081255 | root       | 2026-06-06 17:51:54 | Completed | create_table_payment_terms          | 20260101112150 | 1       | 1         |
-20260108082356 | root       | 2026-06-06 17:51:54 | Completed | create_table_customers              | 20260101112150 | 1       | 1         |
-20260109111201 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_returns          | 20260101112150 | 1       | 1         |
-20260110121111 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_return_details   | 20260101112150 | 1       | 1         |
-20260602101156 | root       | 2026-06-06 17:51:54 | Completed | create_table_accounts_receivable    | 20260101112150 | 1       | 1         |
-20260603114111 | root       | 2026-06-06 17:51:54 | Completed | create_table_orders                 | 20260101112150 | 1       | 1         |
-20260604153122 | root       | 2026-06-06 17:51:54 | Completed | create_table_order_details          | 20260101112150 | 1       | 1         |
-20260605183132 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipments              | 20260101112150 | 1       | 1         |
-20260606160101 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipment_details       | 20260101112150 | 1       | 1         |
-20260607110135 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoices               | 20260101112150 | 1       | 1         |
-20260608110155 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoice_details        | 20260101112150 | 1       | 1         |
-20260609102145 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipts               | 20260609102145 | 1       | 1         |
-20260610092033 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipt_allocations    | 20260609102145 | 1       | 1         | <= current
-```
-
-#### versionDown
-
-Reverts the database schema to the previous version.
-
-To prevent accidental rollbacks, this task is commented out in the sample project.
-
-```bash
-gradlew versionDown
-```
-
-```
-********************** execute version sql. **********************
-versionNumber=20260610092033
-******************************************************************
-Database status.
-change_number  | applied_by | applied_at          | status    | description                         | series_number  | SQL(up) | SQL(down) | migration
-=======================================================================================================================================================
-               |            |                     | Initial   |                                     |                |         |           |
-20260101112150 | root       | 2026-06-06 17:51:54 | Completed | create_table_products               | 20260101112150 | 1       | 1         |
-20260102034455 | root       | 2026-06-06 17:51:54 | Completed | create_table_product_prices         | 20260101112150 | 1       | 1         |
-20260103052000 | root       | 2026-06-06 17:51:54 | Completed | create_table_tax_rates              | 20260101112150 | 1       | 1         |
-20260104150031 | root       | 2026-06-06 17:51:54 | Completed | create_table_warehouses             | 20260101112150 | 1       | 1         |
-20260105101033 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_balances     | 20260101112150 | 1       | 1         |
-20260106091144 | root       | 2026-06-06 17:51:54 | Completed | create_table_inventory_transactions | 20260101112150 | 1       | 1         |
-20260107081255 | root       | 2026-06-06 17:51:54 | Completed | create_table_payment_terms          | 20260101112150 | 1       | 1         |
-20260108082356 | root       | 2026-06-06 17:51:54 | Completed | create_table_customers              | 20260101112150 | 1       | 1         |
-20260109111201 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_returns          | 20260101112150 | 1       | 1         |
-20260110121111 | root       | 2026-06-06 17:51:54 | Completed | create_table_sales_return_details   | 20260101112150 | 1       | 1         |
-20260602101156 | root       | 2026-06-06 17:51:54 | Completed | create_table_accounts_receivable    | 20260101112150 | 1       | 1         |
-20260603114111 | root       | 2026-06-06 17:51:54 | Completed | create_table_orders                 | 20260101112150 | 1       | 1         |
-20260604153122 | root       | 2026-06-06 17:51:54 | Completed | create_table_order_details          | 20260101112150 | 1       | 1         |
-20260605183132 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipments              | 20260101112150 | 1       | 1         |
-20260606160101 | root       | 2026-06-06 17:51:54 | Completed | create_table_shipment_details       | 20260101112150 | 1       | 1         |
-20260607110135 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoices               | 20260101112150 | 1       | 1         |
-20260608110155 | root       | 2026-06-06 17:51:54 | Completed | create_table_invoice_details        | 20260101112150 | 1       | 1         |
-20260609102145 | root       | 2026-06-06 17:52:09 | Completed | create_table_receipts               | 20260609102145 | 1       | 1         | <= current
-20260610092033 |            |                     | Pending   | create_table_receipt_allocations    |                | 1       | 1         |
-```
-
-#### versionRepair
-
-Repairs schema version management metadata.
-
-### Database Data Import / Export
-
-#### importData
-
-Imports multiple files (Excel, CSV, TSV, XML, etc.) into the database.
-
-Foreign key dependencies are taken into account, so tables without dependencies are imported first.
-
-```bash
-gradlew importData
-```
-
-#### exportData
-
-Exports database table data to Excel, CSV, TSV, XML, and other formats.
-
-```bash
-gradlew exportData
-```
-
-### Test Data Generation
-
-#### generateDataGeneratorSetting
-
-Generates template configuration files for test data generation.
-
-The task connects to the database and generates configuration files that can be customized as needed.
-
-To try test data generation:
-
-```bash
-gradlew versionUp
-gradlew generateDataGeneratorSetting
-gradlew generateData
-```
-
-#### generateData
-
-Generates and inserts test data into the database according to the data generation configuration.
-
-```bash
-gradlew generateData
-```
-
-Foreign key dependencies are taken into account, so tables without dependencies are processed first.
-
-In this sample project, static methods defined in classes under:
-
-```text
-src/main/java/data/generator
-```
-
-are automatically loaded and can be invoked from generation definitions, for example:
-
-```text
-hello()
-```
-
-#### convertGeneratorSettingYaml
-
-This task converts the file generated by `generateDataGeneratorSetting` into YAML format.
-While Excel makes it easier to edit the file, text formats like YAML are more suitable for configuration management, so this task converts the file to YAML format.
-
-```bash
-gradlew convertGeneratorSettingYaml
-```
-
-#### convertGeneratorSettingExcel
-
-This task converts the file generated by `generateDataGeneratorSetting` into Excel format.
-Since Excel is easier to edit than YAML when modifying files managed via configuration management, this task converts them to Excel format.
-
-```bash
-gradlew convertGeneratorSettingExcel
-```
-
-#### countAllTables
-
-Execute `SELECT COUNT(*)` to return the number of rows in all tables.
-
-```bash
-gradlew countAllTables
-```
-
-```bash
-> Task :countAllTables
-Registered driver with driverClassName=org.hsqldb.jdbc.JDBCDriver was not found, trying direct instantiation.
-schemaName | tableName              | count
-===========================================
-PUBLIC     | ACCOUNTS_RECEIVABLE    | 100
-PUBLIC     | CUSTOMERS              | 200
-PUBLIC     | INVENTORY_BALANCES     | 200
-PUBLIC     | INVENTORY_TRANSACTIONS | 200
-PUBLIC     | INVOICES               | 100
-PUBLIC     | INVOICE_DETAILS        | 100
-PUBLIC     | ORDERS                 | 100
-PUBLIC     | ORDER_DETAILS          | 100
-PUBLIC     | PAYMENT_TERMS          | 200
-PUBLIC     | PRODUCTS               | 200
-PUBLIC     | PRODUCT_PRICES         | 200
-PUBLIC     | RECEIPTS               | 100
-PUBLIC     | RECEIPT_ALLOCATIONS    | 100
-PUBLIC     | SALES_RETURNS          | 100
-PUBLIC     | SALES_RETURN_DETAILS   | 100
-PUBLIC     | SHIPMENTS              | 200
-PUBLIC     | SHIPMENT_DETAILS       | 100
-PUBLIC     | TAX_RATES              | 200
-PUBLIC     | WAREHOUSES             | 200
-PUBLIC     | changelog              | 19
-```
-
-### Other Tasks
-
-* copyLib
-* cleanLib
-* deploy
-* generateSql
-* toExcel
-* toJson
-* toCsv
-
-## Getting Started
-
-This sample project uses HSQLDB.
-
-Run the following commands in order:
-
-```bash
-gradlew versionUp
-gradlew exportXml
-gradlew mvXml
-gradlew generateDataGeneratorSetting
-gradlew generateData
-```
-
-Generate HTML documentation:
-
-```bash
-gradlew generateHtml
-```
+Instead of combining multiple specialized tools, sqlapp enables these capabilities to work together through a unified Gradle-based workflow.
