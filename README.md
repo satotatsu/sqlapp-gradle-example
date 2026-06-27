@@ -34,7 +34,7 @@ Supports:
 * PostgreSQL `INHERITS`
 * External Tables
 
-![ER Diagram](docs/examples/html/diagrams/_summary_relations_small.svg)
+![ER Diagram](docs/images/schemas.svg)
 
 ![Sample Document](docs/examples/html/index.html)
 

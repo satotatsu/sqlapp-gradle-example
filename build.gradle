@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.62.0'
+	id 'com.sqlapp.db' version '0.63.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
