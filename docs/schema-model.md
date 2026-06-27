@@ -2,7 +2,7 @@
 catalog
 
 ```text
-Catalog(name,displayName,remarks,displayRemarks,collation,caseSensitive,characterSementics,characterSet)
+Catalog
  ├ Schemas
  │ └ Schema
  │   ├ Tables
@@ -26,6 +26,19 @@ Catalog(name,displayName,remarks,displayRemarks,collation,caseSensitive,characte
  │   │   ├ Indexes
  │   │   │ └ Index
  │   │   │   └ Columns
+ │   │   ├ Inherits  <- for Postgres
+ │   │   │  └ Inherits
+ │   │   ├ Partitioning
+ │   │   │  ├ PartitionScheme  <- for SQL Server
+ │   │   │  │ ├ tableSpaces
+ │   │   │  │ └ partitionFunction
+ │   │   │  ├ TableSpaces
+ │   │   │  ├ PartitioningColumns
+ │   │   │  │ └ Column  
+ │   │   │  ├ SubPartitioningColumns
+ │   │   │  │ └ Column  
+ │   │   │  └ Partitions
+ │   │   │     └ Partition
  │   │   │
  │   │   │
  │   │   │
@@ -35,9 +48,10 @@ Catalog(name,displayName,remarks,displayRemarks,collation,caseSensitive,characte
  │   │   │
  │   │   │
  │   │   │
- │   │   │
- │   │   │
- │   │   │
+ ├ Assemblies         <- for SQL Server
+ │ └ Assembly
+ │   └ AssemblyFiles
+ │     └ AssemblyFile
  ├ Users
  │ └ User 
  ├ Roles
