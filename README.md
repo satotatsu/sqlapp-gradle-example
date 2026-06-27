@@ -36,7 +36,7 @@ Supports:
 
 ![ER Diagram](docs/images/schemas.svg)
 
-![Sample Document](https://satotatsu.github.io/sqlapp-sample-html-docs/)
+[Sample Document](https://satotatsu.github.io/sqlapp-sample-html-docs/)
 
 📖 **Learn more:** [`docs/html-documentation.md`](docs/html-documentation.md)
 
