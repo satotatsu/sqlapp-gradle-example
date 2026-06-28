@@ -1,0 +1,12 @@
+gradlew mkdirTest
+gradlew migration
+gradlew exportSchemaXml
+gradlew mvSchemaXml
+gradlew updateDictionaries
+gradlew dictionariesToCsv
+gradlew generateHtmlDocs
+gradlew zipHtml
+gradlew generateDataConfig
+gradlew generateData
+gradlew generateToYaml
+gradlew generateToExcel

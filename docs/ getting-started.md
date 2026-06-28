@@ -4,22 +4,24 @@
 root/
  ├ docs/
  ├ gradle/
+ ├ hsqltestdb/           <- Sample HSQL DB Directory
  ├ html/                 <- Generated schema documentation
  ├ schemas/              <- Schema XML files
- │ ├ baseline/            <- Baseline schema
- │ └ current/             <- Current schema
+ │ ├ baseline/           <- Baseline schema
+ │ └ latest/             <- Latest schema
  ├ src/
  │ └ main/
  │   ├ config/
  │   │ └ local/
  │   │   └ jdbcConfig.properties <- Database connection settings
  │   ├ dictionaries/ <- Logical names and descriptions used in documentation
+ │   │  │ ├ schemas.csv      <- Dictionary for 
+ │   │  │ ├ tables.csv
+ │   │  │ └ columns.csv
  │   │  ├ excel/
- │   │  │ ├ table
- │   │  │ └
- │   │  ├ csv/
- │   │  ├ tsv/
- │   │  └ yaml/
+ │   │  │ ├ schemas.xlsx     <- Dictionary for Edit
+ │   │  │ ├ tables.xlsx      <- Dictionary for Edit
+ │   │  │ └ columns.xlsx     <- Dictionary for Edit
  │   ├ export/ <- Data import/export files
  │   │  ├ csv/
  │   │  ├ tsv/
@@ -29,9 +31,7 @@ root/
  │   ├ foreignkey/
  │   │  └ fkey.def <- Logical relationship definitions
  │   ├ generator/ <- Test data generation settings
- │   │  ├ excel
- │   │  ├ json
- │   │  ├ yaml
+ │   │  ├ excel/
  │   │  └ generated/
  │   ├ java
  │   │  └ functions <-Contains custom Java static methods that can be invoked from MVEL expressions.
