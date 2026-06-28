@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.63.0'
+	id 'com.sqlapp.db' version '0.64.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -97,6 +97,17 @@ tasks.register('cleanLib') {
 tasks.register('deploy') {
 	dependsOn 'cleanLib', 'copyLib'
 }
+
+//HSQL TEST DIR 
+tasks.register('mkdirTest') {
+	doLast {
+		File file=file("hsqltestdb");
+		if (!file.exists()) {
+			file.mkdirs()
+		}
+	}
+}
+
 
 //Export Schema XML
 exportSchemaXml {
@@ -313,7 +324,7 @@ tasks.register('mvSchemaXml') {
 			File parent=schemaFile.getParentFile();
 			parent.mkdirs();
 		}
-		file("schemas/current/${schema_level}.xml").renameTo(file("schemas/baseline/${schema_level}.xml"))
+		file("schemas/latest/${schema_level}.xml").renameTo(file("schemas/baseline/${schema_level}.xml"))
 	}
 }
 
@@ -370,20 +381,22 @@ generateSql {
 }
 
 //Generate or Update Dictionaries for HTML
-tasks.register('dictionariesToExcel', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
+tasks.register('updateDictionaries', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
 	withSchema = { menuName -> true } //menuName=schemas or tables or columns or etc
 	targetFile = file("schemas/baseline/${schema_level}.xml")
-	directory = file("src/main/dictionaries/yaml")
-	outputDirectory = file("src/main/dictionaries/xlsx")
+	directory = file("src/main/dictionaries")
+	removeOriginalFile = true
+//	outputDirectory = file("src/main/dictionaries/xlsx")
 	fileType = "xlsx"
 }
 
-tasks.register('dictionariesToYaml', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
+tasks.register('dictionariesToCsv', com.sqlapp.gradle.plugins.UpdateDictionariesTask){
 	withSchema = { menuName -> true } //menuName=schemas or tables or columns or etc
 	targetFile = file("schemas/baseline/${schema_level}.xml")
-	directory = file("src/main/dictionaries/xlsx")
-	outputDirectory = file("src/main/dictionaries/yaml")
-	fileType = "yaml"
+	directory = file("src/main/dictionaries")
+//	outputDirectory = file("src/main/dictionaries/csv")
+	removeOriginalFile = true
+	fileType = "csv"  //csv or tsv or yaml
 }
 
 //Generate HTML Document
@@ -397,11 +410,9 @@ generateHtmlDocs {
 	useSchemaNameDirectory = false
 	directory = file("src/main/export")
 	fileDirectory = file("src/main/resources")
-	csvEncoding = "UTF8"
 	placeholderPrefix = '${';
 	placeholderSuffix = '}';
-	placeholders = true;
-	fileFilter = {f->true}
+	placeholders = false;
 	//
 	foreignKeyDefinitionDirectory = file("src/main/foreignkey")
 }
@@ -411,7 +422,7 @@ tasks.register('generateDataConfig', com.sqlapp.gradle.plugins.GenerateDataConfi
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
-	outputDirectory=file("src/main/generator/excel")
+	outputDirectory=file("src/main/generator")
 	sqlType='INSERT'  //INSERT Only
 	fileType="EXCEL" //EXCEL or YAML or JSON or TOML
 	includeSchemas.addAll(targetSchemas)
@@ -428,29 +439,29 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	}
 	evaluator.addPackageImports("functions")
 	directory=file("src/main/generator")
-	queryCommitInterval=500
-	onlyCurrentSchema=true
-	fileFilter={f->true}
+	queryCommitInterval = 500
+	onlyCurrentSchema = true
+	fileFilter ={ f-> true }
 }
 
 tasks.register('generatorToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory=file("src/main/generator/excel")
-	outputDirectory=file("src/main/generator/yaml")
-	fileType="YAML" //EXCEL JSON YAML TOML
-	fileFilter={f->true}
-	recursive=true
-	removeOriginalFile=true
+	directory=file("src/main/generator")
+//	outputDirectory=file("src/main/generator/excel")
+	fileType="YAML" //EXCEL JSON YAML
+	fileFilter = { f-> true }
+	recursive = true
+	removeOriginalFile = true
 }
 
 tasks.register('generatorToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory=file("src/main/generator/yaml")
-	outputDirectory=file("src/main/generator/excel")
-	fileType="EXCEL" //EXCEL JSON YAML TOML
-	fileFilter={f->true}
-	recursive=true
-	removeOriginalFile=true
+	directory = file("src/main/generator")
+//	outputDirectory=file("src/main/generator/excel")
+	fileType="EXCEL" //EXCEL JSON YAML
+	fileFilter = {f->true}
+	recursive = true
+	removeOriginalFile = true
 }
 
 //Display MySQL connection info
