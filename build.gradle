@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.64.0'
+	id 'com.sqlapp.db' version '0.67.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -182,7 +182,7 @@ migration {
 
 //Repair DB schema version up
 /*
-tasks.register('migrationRepair', com.sqlapp.gradle.plugins.VersionRepairTask) {
+tasks.register('migrationRepair', com.sqlapp.gradle.plugins.MigrationRepairTask) {
 }
 */
 
@@ -198,6 +198,7 @@ tasks.register('importData', com.sqlapp.gradle.plugins.ImportDataTask) {
 	}
 	parameters = [:]
 	useSchemaNameDirectory = false
+//	source new file("src/main/export/test.csv"), new file("src/main/export/test2.tsv") source or directory
 	directory = file("src/main/export")
 	fileDirectory = file("src/main/resources")
 	csvEncoding = "UTF8"
@@ -205,7 +206,6 @@ tasks.register('importData', com.sqlapp.gradle.plugins.ImportDataTask) {
 	placeholderPrefix = '${'
 	placeholderSuffix = '}'
 	placeholders = true
-	fileFilter {f->true}
 	includeSchemas.addAll(targetSchemas)
 //	includeTables "a", "b"
 	tableOptions {
@@ -229,7 +229,7 @@ tasks.register('exportData', com.sqlapp.gradle.plugins.ExportDataTask) {
 	//xls,xlsx,ods,csv,tsv,xml,json
 	outputFileType="CSV" //EXCEL OR CSV OR TSV OR YAML OR JSONL
 //	fileFilter={f->true}
-	//includeSchemas.addAll(targetSchemas)
+	includeSchemas.addAll(targetSchemas)
 	includeTables.addAll(exportDataTargetTables)
 	tableOptions {
 		
@@ -434,32 +434,35 @@ tasks.register('generateDataConfig', com.sqlapp.gradle.plugins.GenerateDataConfi
 
 tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	debug = false
+	source file("src/main/generator")
+    include("**/*.*")
+	//directory=file("src/main/generator")
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
 	evaluator.addPackageImports("functions")
-	directory=file("src/main/generator")
 	queryCommitInterval = 500
 	onlyCurrentSchema = true
-	fileFilter ={ f-> true }
 }
 
 tasks.register('generatorToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory=file("src/main/generator")
+	source file("src/main/generator")
+    include("**/*.*")
+//	directory=file("src/main/generator")
 //	outputDirectory=file("src/main/generator/excel")
 	fileType="YAML" //EXCEL JSON YAML
-	fileFilter = { f-> true }
 	recursive = true
 	removeOriginalFile = true
 }
 
 tasks.register('generatorToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	directory = file("src/main/generator")
+	source file("src/main/generator")
+    include("**/*.*")
+    exclude("**/*.xlsx")
 //	outputDirectory=file("src/main/generator/excel")
 	fileType="EXCEL" //EXCEL JSON YAML
-	fileFilter = {f->true}
 	recursive = true
 	removeOriginalFile = true
 }
@@ -497,4 +500,3 @@ tasks.register('showWarnings', com.sqlapp.gradle.plugins.SqlQueryTask) {
 //Available fonts for Graphviz
 tasks.register('availableFonts', com.sqlapp.gradle.plugins.AvailableFontsTask) {
 }
-
