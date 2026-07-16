@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.67.0'
+	id 'com.sqlapp.db' version '0.69.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -76,7 +76,7 @@ dependencies {
 }
 
 wrapper {
-	gradleVersion = '9.5.1'
+	gradleVersion = '9.6.1'
 }
 
 //copy library
@@ -198,8 +198,8 @@ tasks.register('importData', com.sqlapp.gradle.plugins.ImportDataTask) {
 	}
 	parameters = [:]
 	useSchemaNameDirectory = false
-//	source new file("src/main/export/test.csv"), new file("src/main/export/test2.tsv") source or directory
 	directory = file("src/main/export")
+//	includes.add("**.csv")
 	fileDirectory = file("src/main/resources")
 	csvEncoding = "UTF8"
 	sqlType = "MERGE_ROW"
@@ -423,6 +423,7 @@ tasks.register('generateDataConfig', com.sqlapp.gradle.plugins.GenerateDataConfi
 		properties "${dataSourceProperties}"
 	}
 	outputDirectory=file("src/main/generator")
+	foreignKeyDefinitionDirectory=file("src/main/foreignkey")
 	sqlType='INSERT'  //INSERT Only
 	fileType="EXCEL" //EXCEL or YAML or JSON or TOML
 	includeSchemas.addAll(targetSchemas)
@@ -434,9 +435,9 @@ tasks.register('generateDataConfig', com.sqlapp.gradle.plugins.GenerateDataConfi
 
 tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 	debug = false
-	source file("src/main/generator")
-    include("**/*.*")
-	//directory=file("src/main/generator")
+	directory=file("src/main/generator")
+    includes.add("**/*.*")
+	foreignKeyDefinitionDirectory=file("src/main/foreignkey")
 	dataSource {
 		properties "${dataSourceProperties}"
 	}
@@ -447,9 +448,10 @@ tasks.register('generateData', com.sqlapp.gradle.plugins.GenerateDataTask){
 
 tasks.register('generatorToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	source file("src/main/generator")
-    include("**/*.*")
-//	directory=file("src/main/generator")
+	directory=file("src/main/generator")
+	includes.add("**/*.*")
+    excludes.add("**/*.yaml")
+	//	directory=file("src/main/generator")
 //	outputDirectory=file("src/main/generator/excel")
 	fileType="YAML" //EXCEL JSON YAML
 	recursive = true
@@ -458,9 +460,9 @@ tasks.register('generatorToYaml', com.sqlapp.gradle.plugins.ConvertGeneratorConf
 
 tasks.register('generatorToExcel', com.sqlapp.gradle.plugins.ConvertGeneratorConfigTask){
 	debug = false
-	source file("src/main/generator")
-    include("**/*.*")
-    exclude("**/*.xlsx")
+	directory=file("src/main/generator")
+	includes.add("**/*.*")
+    excludes.add("**/*.xlsx")
 //	outputDirectory=file("src/main/generator/excel")
 	fileType="EXCEL" //EXCEL JSON YAML
 	recursive = true
