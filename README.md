@@ -187,6 +187,8 @@ CSV / TSV / Excel / YAML / JSONL / SQL / Iterator
 | [`docs/data-import-export.md`](docs/data-import-export.md)     | Data import/export and transformation           |
 | [`docs/format-conversion.md`](docs/format-conversion.md)       | Format conversion between supported file types  |
 | [`docs/mvel.md`](docs/mvel.md)                                 | MVEL expressions and Java extensions            |
+| [`docs/normalization-legacy-migration.md`](docs/normalization-legacy-migration.md) | Normalization and legacy-migration workflow |
+| [Gradle task reference](https://github.com/satotatsu/sqlapp/blob/main/docs/gradle-plugin/README.md) | Authoritative task names and properties |
 
 ---
 

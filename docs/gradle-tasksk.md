@@ -8,5 +8,6 @@ gradlew generateHtmlDocs
 gradlew zipHtml
 gradlew generateDataConfig
 gradlew generateData
-gradlew generateToYaml
-gradlew generateToExcel
+gradlew generatorToYaml
+gradlew generatorToExcel
+gradlew countAllTables

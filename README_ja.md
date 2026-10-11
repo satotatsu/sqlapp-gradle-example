@@ -11,16 +11,18 @@
 このプロジェクトは、DB管理ツールである **sqlapp** のサンプルプロジェクトです。
 サンプルはHSQLDBで動くようになっているため、DBの用意は不要です。
 
-主に以下の機能を試すことができます。
+## 主な機能
 
-1. DBのスキーマ情報をXMLファイルとして出力する
-2. スキーマ情報のXMLからER図を含むHTMLドキュメントを生成する
-3. DBのスキーマの差分のDDL実行をする。
-4. DBのテストデータ生成用の雛形ファイルの生成と、テストデータの生成を行う。
+* 🚀 Schema Migration – バージョン管理とマイグレーション
+* 🗂️ Schema Modeling – ベンダー固有機能まで含む包括的なSchema XML
+* 📖 Documentation & Dictionary – HTML生成とExcel/YAMLベースの論理名・説明管理
+* 🔍 Schema Diff – XMLを利用した構造比較
+* 🌊 Data Generation – 外部キー解析、ストリーミング、MVEL、Java拡張対応
+* 🔄 Data Processing – CSV・TSV・Excel・YAML・JSONLなどのインポート／エクスポートと相互変換
 
 ## 動作環境
 
-* Java 17以降
+* Java 21以降
 * Gradle 9.5.1以降
 * Graphviz（HTMLドキュメント生成時に利用）
 * Docker（generateHtml.sh / generateHtml.bat利用時）
