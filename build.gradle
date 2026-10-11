@@ -1,5 +1,5 @@
 plugins {
-	id 'com.sqlapp.db' version '0.69.0'
+	id 'com.sqlapp.db' version '0.80.0'
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
@@ -76,7 +76,7 @@ dependencies {
 }
 
 wrapper {
-	gradleVersion = '9.6.1'
+	gradleVersion = '9.8.1'
 }
 
 //copy library
@@ -409,7 +409,8 @@ generateHtmlDocs {
 	//
 	useSchemaNameDirectory = false
 	directory = file("src/main/export")
-	fileDirectory = file("src/main/resources")
+	directory = file("src/main/export")
+	viewpointsFile = file("src/main/viewpoint/viewpoint.yaml")
 	placeholderPrefix = '${';
 	placeholderSuffix = '}';
 	placeholders = false;
