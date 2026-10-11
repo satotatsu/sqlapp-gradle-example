@@ -1,4 +1,10 @@
+# Getting started
 
+This repository is a runnable Gradle project using the `com.sqlapp.db` plugin.
+Configure the JDBC properties, then use the included Gradle Wrapper to run the
+examples.
+
+## Project layout
 
 ```text
 root/
@@ -46,3 +52,14 @@ root/
  ├ gradlew               <- Gradle Wrapper (Linux/macOS)
  └ gradlew.bat           <- Gradle Wrapper (Windows)
 ```
+
+## First commands
+
+```shell
+./gradlew tasks
+./gradlew exportSchemaXml
+./gradlew generateHtmlDocs
+```
+
+On Windows, replace `./gradlew` with `gradlew.bat`. Database tasks use the
+connection configured by `dataSourceProperties` in `gradle.properties`.
